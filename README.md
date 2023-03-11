@@ -7,7 +7,7 @@ installation lists
 ->npm install react-scripts
 ->npm i mysql
 ->npm i cors
-
+->npm i axios
 git command
 ->git init //first time
 ->git add . 
