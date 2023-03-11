@@ -9,6 +9,7 @@ installation lists
 ->npm i cors
 ->npm i axios
 ->npm install react-bootstrap bootstrap
+->npm i session
 git command
 ->git init //first time
 ->git add . 
