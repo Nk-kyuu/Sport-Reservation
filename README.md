@@ -8,6 +8,7 @@ installation lists
 ->npm i mysql
 ->npm i cors
 ->npm i axios
+->npm install react-bootstrap bootstrap
 git command
 ->git init //first time
 ->git add . 
