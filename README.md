@@ -12,6 +12,7 @@ installation lists
 ->npm i session
 ->npm i react-router-dom
 ->npm i body-praser
+->npm i react-router-dom@6
 git command
 ->git init //first time
 ->git add . 
