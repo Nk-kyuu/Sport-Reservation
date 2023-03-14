@@ -13,6 +13,8 @@ installation lists
 ->npm i react-router-dom
 ->npm i body-praser
 ->npm i react-router-dom@6
+->npm i jsonwebtoken
+->npm i bcrypt
 git command
 ->git init //first time
 ->git add . 
