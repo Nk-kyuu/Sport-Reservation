@@ -20,3 +20,5 @@ git command
 ->git add . 
 ->git commit -m " "
 ->git push -u origin
+->npm install @mui/material @emotion/react @emotion/styled @material-ui/core @material-ui/styles @mui/icons-material
+
