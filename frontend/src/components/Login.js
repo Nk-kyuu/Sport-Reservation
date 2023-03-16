@@ -14,24 +14,24 @@ import { createTheme, ThemeProvider } from '@mui/material/styles';
 const theme = createTheme();
 
 function Login() {
-  const handleSubmit = (event) => {
-    event.preventDefault();
-    const data = new FormData(event.currentTarget);
-    fetch('/login', {
-      method: 'POST',
-      header: {
-        'Comtent-Type': 'application/json',
-      },
-      //body: JSON.stringify(jsonData),
-    })
-      .then(response => response.json())
-      .then(data => {
-        console.log('Successs:', data);
-      })
-      .catch((error) => {
-        console.error('Error:', error);
-      })
-  };
+  // const handleSubmit = (event) => {
+  //   event.preventDefault();
+  //   const data = new FormData(event.currentTarget);
+  //   fetch('/login', {
+  //     method: 'POST',
+  //     header: {
+  //       'Comtent-Type': 'application/json',
+  //     },
+  //     //body: JSON.stringify(jsonData),
+  //   })
+  //     .then(response => response.json())
+  //     .then(data => {
+  //       console.log('Successs:', data);
+  //     })
+  //     .catch((error) => {
+  //       console.error('Error:', error);
+  //     })
+  // };
 
 
 
@@ -54,7 +54,8 @@ return (
           <Typography component="h1" variant="h5">
             Sign in
           </Typography>
-          <Box component="form" onSubmit={handleSubmit} noValidate sx={{ mt: 1 }}>
+          {/* <Box component="form" onSubmit={handleSubmit} noValidate sx={{ mt: 1 }}> */}
+          <form action="/login" method="POST">
 
             <TextField
               margin="normal"
@@ -86,7 +87,8 @@ return (
               LOGIN
             </Button>
 
-          </Box>
+          {/* </Box> */}
+          </form>
         </Box>
       </Container>
     </ThemeProvider>

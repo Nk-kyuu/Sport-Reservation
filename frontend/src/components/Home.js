@@ -5,7 +5,7 @@ class Home extends Component {
     return (
       <div>
         <br/>
-        <h1>Login successfully</h1>
+        <h1>Hello</h1>
       </div>
     );
   }
