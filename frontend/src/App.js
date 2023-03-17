@@ -7,7 +7,7 @@ import Login from './components/Login';
 
 function App() {
   return (
-    <div classname="App">
+    <div className="App">
       <BrowserRouter>
       <Routes>
         <Route path="/" element={<Login/>} />
