@@ -5,13 +5,13 @@ installation lists.
 ->npm i -g nodemon.   
 ->npx create-react-app.   
 ->npm install react-scripts.   
-->npm i mysql.   
+->npm i mysql2.   
 ->npm i cors.   
 ->npm i axios.   
 ->npm install react-bootstrap bootstrap.   
 ->npm i session.   
 ->npm i react-router-dom.   
-->npm i body-praser.   
+->npm i body-parser.   
 ->npm i react-router-dom@6.   
 ->npm i jsonwebtoken.   
 ->npm i bcrypt.   
