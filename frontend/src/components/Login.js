@@ -66,8 +66,6 @@ return (
             Sign in
           </Typography>
           <Box component="form" onSubmit={handleSubmit} noValidate sx={{ mt: 1 }}>
-          {/* <form action="/login" method="post"> */}
-
             <TextField
               margin="normal"
               required
@@ -99,7 +97,6 @@ return (
             </Button>
 
           </Box>
-          {/* </form> */}
         </Box>
       </Container>
     </ThemeProvider>
