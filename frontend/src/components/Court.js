@@ -30,6 +30,7 @@ import images6 from './images/Badminton_Court3.jpeg';
 import images7 from './images/Volleyball_Court1.png';
 import images8 from './images/Volleyball_Court2.jpeg';
 import images9 from './images/Football_Court.jpeg';
+import { useEffect } from 'react';
 
 const time = [
   { label: '15.00 - 16.00' },
