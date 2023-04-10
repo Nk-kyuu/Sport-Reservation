@@ -1,79 +1,93 @@
-import { useEffect, useState } from "react";
+// function Home() {
+//     useEffect(() => {
+//         const token = localStorage.getItem("token");
+//         fetch("http://localhost:5000/authen", {
+//             method: "post",
+//             headers: {
+//                 "Content-Type": "application/json",
+//                 Authorization: "Bearer " + token,
+//             },
+//         })
+//             .then((response) => response.json())
+//             .then((data) => {
+//                 //console.error('success:', data);
+//                 if (data.status == "ok") {
+//                     //alert('authen successfully')
+//                 } else {
+//                     alert("please login");
+//                     localStorage.removeItem("token");
+//                     window.location = "/";
+//                 }
+//             })
+//             .catch((error) => {
+//                 console.error("Error:", error);
+//             });
+//     }, []);
+
 import * as React from 'react';
+import dayjs from 'dayjs';
+import { DemoContainer } from '@mui/x-date-pickers/internals/demo';
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
+import { Container, Toolbar } from '@mui/material';
 import AppBar from '@mui/material/AppBar';
 import Box from '@mui/material/Box';
-import Toolbar from '@mui/material/Toolbar';
 import Typography from '@mui/material/Typography';
 import IconButton from '@mui/material/IconButton';
 import AccountCircle from '@mui/icons-material/AccountCircle';
 import MenuItem from '@mui/material/MenuItem';
 import Menu from '@mui/material/Menu';
-import Autocomplete from '@mui/material/Autocomplete';
-import TextField from '@mui/material/TextField';
-import Container from '@mui/material/Container';
-import { DemoContainer } from '@mui/x-date-pickers/internals/demo';
-import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
-import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
-import { DatePicker } from '@mui/x-date-pickers/DatePicker';
-import Grid from '@mui/material/Grid';
+import Logout from '@mui/icons-material/Logout';
+import ListItemIcon from '@mui/material/ListItemIcon';
+import QrCodeScannerIcon from '@mui/icons-material/QrCodeScanner';
+import ArticleOutlinedIcon from '@mui/icons-material/ArticleOutlined';
+import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
+import { DateCalendar } from '@mui/x-date-pickers/DateCalendar';
+import Grid from '@mui/material/Unstable_Grid2';
+import ImageList from '@mui/material/ImageList';
+import ImageListItem from '@mui/material/ImageListItem';
+import images1 from './images/Basketball_Court1.jpeg';
+import images2 from './images/Basketball_Court2.jpeg';
+import images3 from './images/Basketball_Court3.png';
+import images4 from './images/Badminton_Court1.jpeg';
+import images5 from './images/Badminton_Court2.jpeg';
+import images6 from './images/Badminton_Court3.jpeg';
+import images7 from './images/Volleyball_Court1.png';
+import images8 from './images/Volleyball_Court2.jpeg';
+import images9 from './images/Football_Court.jpeg';
 
-//add
-const court = [
-  { label: 'Basketball Court1' },
-  { label: 'Basketball Court2' },
-  { label: 'Badminton Court1' },
-  { label: 'Badminton Court2' },
-  { label: 'Badminton Court3' },
-  { label: 'Volleyball Court1' },
-  { label: 'Volleyball Court2' },
-  { label: 'Football Court' }
-]
-
-const timeSlots = [
-  { label: '15.00 - 16.00' },
-  { label: '16.00 - 17.00' },
-  { label: '17.00 - 18.00' },
-  { label: '18.00 - 19.00' },
-  { label: '19.00 - 20.00' },
-  { label: '20.00 - 21.00' },
-  { label: '21.00 - 22.00' }
-]
-//
+const itemData = [
+    {
+        img: images1,
+    },
+    {
+        img: images2,
+    },
+    {
+        img: images3,
+    },
+    {
+        img: images4,
+    },
+    {
+        img: images5,
+    },
+    {
+        img: images6,
+    },
+    {
+        img: images7,
+    },
+    {
+        img: images8,
+    },
+    {
+        img: images9,
+    },
+];
 
 function Home() {
-  useEffect(() => {
-    const token = localStorage.getItem("token");
-    fetch("http://localhost:5000/authen", {
-      method: "post",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: "Bearer " + token,
-      },
-    })
-      .then((response) => response.json())
-      .then((data) => {
-        //console.error('success:', data);
-        if (data.status == "ok") {
-          //alert('authen successfully')
-        } else {
-          alert("please login");
-          localStorage.removeItem("token");
-          window.location = "/";
-        }
-      })
-      .catch((error) => {
-        console.error("Error:", error);
-      });
-  }, []);
-
-  const handleLogout = (event) => {
-    event.preventDefault();
-    localStorage.removeItem("token");
-    window.location = "/";
-  };
-
-  //add
-  const [anchorEl, setAnchorEl] = React.useState(null);
+    const [anchorEl, setAnchorEl] = React.useState(null);
 
     const handleMenu = (event) => {
         setAnchorEl(event.currentTarget);
@@ -82,16 +96,36 @@ function Home() {
     const handleClose = () => {
         setAnchorEl(null);
     };
-  //
 
-  return (
-      <Box sx={{ flexGrow: 1 }}>
+    const [value, setValue] = React.useState(0);
+
+    const handleChange = (event, newValue) => {
+        setValue(newValue);
+    };
+
+    const handleOK = () => {
+        window.location = '/Court';
+    }
+
+    return (
+        <Box>
             <AppBar position="static">
-                <Toolbar>
-                    <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
-                        Reservation Court
-                    </Typography>
-                    <div>
+                <Container maxWidth="xl">
+                    <Toolbar disableGutters>
+
+                        <CalendarMonthIcon sx={{ display: { xs: 'none', md: 'flex' }, mr: 1 }} />
+                        <Typography
+                            sx={{
+                                mr: 143,    //ห่างจากโปรไฟล์
+                                display: { xs: 'none', md: 'flex' },
+                                fontFamily: 'Segoe UI',
+                                fontWeight: 700,
+                                color: 'inherit',
+                                textDecoration: 'none',
+                            }} variant="h6" >
+                            Reservation Court
+                        </Typography>
+
                         <IconButton
                             size="large"
                             aria-label="account of current user"
@@ -100,13 +134,15 @@ function Home() {
                             onClick={handleMenu}
                             color="inherit"
                         >
-                            <AccountCircle />
+                            <AccountCircle display="flex" />
                         </IconButton>
-                        <Menu 
+
+                        <Menu
+                            //กล่องสี่เหลี่ยมprofile
                             id="menu-appbar"
                             anchorEl={anchorEl}
                             anchorOrigin={{
-                                vertical: 'top',
+                                vertical: 'bottom',
                                 horizontal: 'right',
                             }}
                             keepMounted
@@ -115,51 +151,62 @@ function Home() {
                                 horizontal: 'right',
                             }}
                             open={Boolean(anchorEl)}
-                            onClose={handleClose}                       
+                            onClose={handleClose}
                         >
-                            <MenuItem sx={{ width: 250 }} onClick={handleClose}>My Reservation</MenuItem>
-                            <MenuItem sx={{ width: 250 }} onClick={handleClose}>Verify Reservation</MenuItem>
-                            <MenuItem sx={{ width: 250 }} onClick={handleClose}>Log out</MenuItem>
+                            <MenuItem onClick={handleClose}>
+                                <ListItemIcon>
+                                    <ArticleOutlinedIcon />
+                                </ListItemIcon>
+                                My Reservation
+                            </MenuItem>
+                            <MenuItem onClick={handleClose}>
+                                <ListItemIcon>
+                                    <QrCodeScannerIcon />
+                                </ListItemIcon>
+                                Verify Reservation
+                            </MenuItem>
+                            <MenuItem onClick={handleClose}>
+                                <ListItemIcon>
+                                    <Logout fontSize="small" />
+                                </ListItemIcon>
+                                Logout
+                            </MenuItem>
                         </Menu>
-                    </div>
-                </Toolbar>
+                    </Toolbar>
+                </Container>
             </AppBar>
-            <Container component="main" maxWidth="xs">
-                < Box sx={{ mt: 10, mb: 10 }}>
-                    <Autocomplete
-                        disablePortal
-                        id="combo-box-demo"
-                        options={court}
-                        sx={{ width: 300 }}
-                        renderInput={(params) => <TextField {...params} label="Choose Court" />}
-                    />
-                </Box>
-                <Box sx={{ width: 300 }}>
-                    <Grid item xs={6}>
+
+            <Grid container spacing={2}>
+                <Grid xs={5} sx={{ ml: 15, mt: 10 }}>
+                    <ImageList sx={{ width: 700, height: 600 }} cols={3} rowHeight={164} gap={8}>
+                        {itemData.map((item) => (
+                            <ImageListItem key={item.img}>
+                                <img
+                                    src={`${item.img}?w=164&h=164&fit=crop&auto=format`}
+                                    srcSet={`${item.img}?w=164&h=164&fit=crop&auto=format&dpr=2 2x`}
+                                />
+                            </ImageListItem>
+                        ))}
+                    </ImageList>
+                </Grid>
+
+                <Grid xs={6}>
+                    <Container sx={{ mt: 25 }}>
                         <LocalizationProvider dateAdapter={AdapterDayjs}>
-                            <DemoContainer components={['DatePicker']}>
-                                <DatePicker sx={{ width: 300 }} label="Date" />
+                            <DemoContainer
+                                components={[
+                                    'DateCalendar'
+                                ]}
+                            >
+                                <DateCalendar defaultValue={dayjs('2022-04-17')} onChange={handleOK} />
                             </DemoContainer>
                         </LocalizationProvider>
-                    </Grid>
-                </Box>
-                < Box sx={{ mt: 10, mb: 10 }}>
-                    <Grid item xs={6}>
-                        <Autocomplete
-                            sx={{ width: 300 }}
-                            id="disabled-options-demo"
-                            options={timeSlots}
-                            //ส่วนdisableเวลาที่มีคนจองเวลานั้นไปแล้วคนอื่นก็จะเลือกเวลานั้นไม่ได้ ยากไปไหมตรงนี้ส่วนของbackend ไม่เอาส่วนนี้ตัดได้นะ
-                            getOptionDisabled={(option) =>
-                                option === timeSlots[0] || option === timeSlots[2]
-                            }
-                            renderInput={(params) => <TextField {...params} label="Time" />}
-                        />
-                    </Grid>
-                </Box>
-            </Container>
-        </Box> 
-  );
+                    </Container>
+                </Grid>
+            </Grid>
+        </Box >
+    );
 }
 
 export default Home;
+

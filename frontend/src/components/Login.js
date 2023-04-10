@@ -11,6 +11,7 @@ import Typography from '@mui/material/Typography';
 import Container from '@mui/material/Container';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 
+//สร้างthemeควบคุมstyleแบบglobal
 const theme = createTheme();
 
 function Login() {
@@ -43,6 +44,11 @@ function Login() {
         console.error('Error:', error);
       })
   };
+
+  const HandleLogin = () => {
+        window.location = '/Home';
+    }
+    
 
   
 
@@ -94,6 +100,7 @@ return (
               fullWidth
               variant="contained"
               sx={{ mt: 2 }}
+              onClick={HandleLogin}
             >
               LOGIN
             </Button>
