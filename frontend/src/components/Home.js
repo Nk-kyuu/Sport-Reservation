@@ -1,29 +1,3 @@
-// function Home() {
-//     useEffect(() => {
-//         const token = localStorage.getItem("token");
-//         fetch("http://localhost:5000/authen", {
-//             method: "post",
-//             headers: {
-//                 "Content-Type": "application/json",
-//                 Authorization: "Bearer " + token,
-//             },
-//         })
-//             .then((response) => response.json())
-//             .then((data) => {
-//                 //console.error('success:', data);
-//                 if (data.status == "ok") {
-//                     //alert('authen successfully')
-//                 } else {
-//                     alert("please login");
-//                     localStorage.removeItem("token");
-//                     window.location = "/";
-//                 }
-//             })
-//             .catch((error) => {
-//                 console.error("Error:", error);
-//             });
-//     }, []);
-
 import * as React from 'react';
 import dayjs from 'dayjs';
 import { DemoContainer } from '@mui/x-date-pickers/internals/demo';
@@ -87,6 +61,8 @@ const itemData = [
 ];
 
 function Home() {
+
+
     const [anchorEl, setAnchorEl] = React.useState(null);
 
     const handleMenu = (event) => {
@@ -106,6 +82,53 @@ function Home() {
     const handleOK = () => {
         window.location = '/Court';
     }
+
+    const handleReserve = (event) => {
+        event.preventDefault();
+        fetch("http://localhost:5000/reserve", {
+            method: "post",
+            headers: {
+                "Content-Type": "application/json",
+            },
+        })
+            .then((response) => response.json())
+            .then((data) => {
+                //console.error('success:', data);
+                if (data.status == "ok") {
+                    alert("update successfully");
+                } else {
+                    alert("update failed");
+                }
+            })
+            .catch((error) => {
+                console.error("Error:", error);
+            });
+    };
+
+    useEffect(() => {
+        const token = localStorage.getItem("token");
+        fetch("http://localhost:5000/authen", {
+            method: "post",
+            headers: {
+                "Content-Type": "application/json",
+                Authorization: "Bearer " + token,
+            },
+        })
+            .then((response) => response.json())
+            .then((data) => {
+                //console.error('success:', data);
+                if (data.status == "ok") {
+                    //alert('authen successfully')
+                } else {
+                    alert("please login");
+                    localStorage.removeItem("token");
+                    window.location = "/";
+                }
+            })
+            .catch((error) => {
+                console.error("Error:", error);
+            });
+    }, []);
 
     return (
         <Box>

@@ -8,7 +8,7 @@ const jsonParser = bodyParser.json();
 const jwt = require("jsonwebtoken");
 const secret = "secretlog";
 const db = require("./database");
-const loginControl = require("./logintest");
+//const loginControl = require("./logintest");
 
 app.use(cors());
 app.use(express.json());
@@ -19,7 +19,7 @@ const saltRounds = 10;
 // app.use("/login", loginControl);
 // app.use("/authen", loginControl)
 
-//login 
+//user login 
 app.post("/login", jsonParser, (req, res, next) => {
   const password = req.body.password;
   const UserID = req.body.UserID;
@@ -52,7 +52,8 @@ app.post("/login", jsonParser, (req, res, next) => {
   );
 });
 
-app.post("/authen", jsonParser, function (req, res, next) {
+//user authentication
+app.post("/authen", jsonParser, (req, res, next) =>{
   try {
     const token = req.headers.authorization.split(" ")[1];
     const decoded = jwt.verify(token, secret);
@@ -62,6 +63,55 @@ app.post("/authen", jsonParser, function (req, res, next) {
   }
 });
 
+const verifyToken = (req, res, next) => {
+  const authHeader = req.headers.authorization;
+
+  if (authHeader) {
+    // Extract the token from the Authorization header
+    const token = authHeader.split(' ')[1];
+
+    try {
+      // Verify the token and retrieve the payload
+      const payload = jwt.verify(token, process.env.JWT_SECRET);
+
+      // Add the UserID to the request object for use in subsequent middleware
+      req.UserID = payload.UserID;
+      next();
+    } catch (err) {
+      res.status(401).json({ error: 'Invalid token' });
+    }
+  } else {
+    res.status(401).json({ error: 'Authorization header not found' });
+  }
+};
+
+app.get('/dashboard', verifyToken, (req, res) => {
+  // Retrieve the user's data from the database using their UserID
+  const UserID = db.getUserById(req.UserID);
+
+  res.json({ UserID });
+});
+
+
+//reserve
+app.post("/reserve", jsonParser, (req, res, next) =>{
+  const UserID = req.body.UserID;
+  db.query(
+    'UPDATE reservation SET ReserveStatus = 1 WHERE UserID = ?',[UserID],
+    function (err, result, fields) {
+      if (err) {
+        res.json({ status: "error", message: "failed" });
+        return;
+      } else {
+        console.log(`Reservation ${UserID} updated to 1`);
+         res.json({ status: "ok", message: "success"});
+      }
+
+    })
+})
+
+
+//server port
 app.listen(5000, () => {
   console.log("Server started successfully");
 });

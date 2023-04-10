@@ -13,7 +13,7 @@ import { createTheme, ThemeProvider } from '@mui/material/styles';
 
 //สร้างthemeควบคุมstyleแบบglobal
 const theme = createTheme();
-
+//hello
 function Login() {
   const handleSubmit = (event) => {
     event.preventDefault();
@@ -72,8 +72,6 @@ return (
             Sign in
           </Typography>
           <Box component="form" onSubmit={handleSubmit} noValidate sx={{ mt: 1 }}>
-          {/* <form action="/login" method="post"> */}
-
             <TextField
               margin="normal"
               required
@@ -106,7 +104,6 @@ return (
             </Button>
 
           </Box>
-          {/* </form> */}
         </Box>
       </Container>
     </ThemeProvider>
