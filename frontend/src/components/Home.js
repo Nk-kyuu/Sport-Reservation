@@ -29,6 +29,7 @@ import images6 from './images/Badminton_Court3.jpeg';
 import images7 from './images/Volleyball_Court1.png';
 import images8 from './images/Volleyball_Court2.jpeg';
 import images9 from './images/Football_Court.jpeg';
+import { useEffect } from 'react';
 
 const itemData = [
     {
@@ -62,7 +63,6 @@ const itemData = [
 
 function Home() {
 
-
     const [anchorEl, setAnchorEl] = React.useState(null);
 
     const handleMenu = (event) => {
@@ -81,6 +81,10 @@ function Home() {
 
     const handleOK = () => {
         window.location = '/Court';
+    }
+
+    const handlelogout = () => {
+        window.location = '/';
     }
 
     const handleReserve = (event) => {
@@ -131,7 +135,7 @@ function Home() {
     }, []);
 
     return (
-        <Box>
+        <Box sx={{ flexGrow: 1 }}>
             <AppBar position="static">
                 <Container maxWidth="xl">
                     <Toolbar disableGutters>
@@ -139,7 +143,7 @@ function Home() {
                         <CalendarMonthIcon sx={{ display: { xs: 'none', md: 'flex' }, mr: 1 }} />
                         <Typography
                             sx={{
-                                mr: 143,    //ห่างจากโปรไฟล์
+                                flexGrow: 1,
                                 display: { xs: 'none', md: 'flex' },
                                 fontFamily: 'Segoe UI',
                                 fontWeight: 700,
@@ -181,16 +185,18 @@ function Home() {
                                     <ArticleOutlinedIcon />
                                 </ListItemIcon>
                                 My Reservation
+                                
                             </MenuItem>
+                            
                             <MenuItem onClick={handleClose}>
                                 <ListItemIcon>
                                     <QrCodeScannerIcon />
                                 </ListItemIcon>
                                 Verify Reservation
                             </MenuItem>
-                            <MenuItem onClick={handleClose}>
+                            <MenuItem onClick={handlelogout}>
                                 <ListItemIcon>
-                                    <Logout fontSize="small" />
+                                    <Logout/>
                                 </ListItemIcon>
                                 Logout
                             </MenuItem>

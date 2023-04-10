@@ -74,7 +74,7 @@ function a11yProps(index) {
   };
 }
 
-function Home() {
+function Court() {
   const [anchorEl, setAnchorEl] = React.useState(null);
 
 
@@ -92,9 +92,12 @@ function Home() {
     setValue(newValue);
   };
 
+  const handlelogout = () => {
+    window.location = '/';
+  }
 
   return (
-    <Box>
+    <Box sx={{ flexGrow: 1 }}>
       <AppBar position="static">
         <Container maxWidth="xl">
           <Toolbar disableGutters>
@@ -102,7 +105,7 @@ function Home() {
             <CalendarMonthIcon sx={{ display: { xs: 'none', md: 'flex' }, mr: 1 }} />
             <Typography
               sx={{
-                mr: 143,    //ห่างจากโปรไฟล์
+                flexGrow: 1,
                 display: { xs: 'none', md: 'flex' },
                 fontFamily: 'Segoe UI',
                 fontWeight: 700,
@@ -151,18 +154,16 @@ function Home() {
                 </ListItemIcon>
                 Verify Reservation
               </MenuItem>
-              <MenuItem onClick={handleClose}>
+              <MenuItem onClick={handlelogout}>
                 <ListItemIcon>
-                  <Logout fontSize="small" />
+                  <Logout />
                 </ListItemIcon>
                 Logout
               </MenuItem>
             </Menu>
-
           </Toolbar>
         </Container>
       </AppBar>
-
 
       <Box sx={{ width: '100%' }}>
         <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
@@ -183,7 +184,7 @@ function Home() {
 
         <TabPanel value={value} index={0}>
           <Grid container spacing={2} sx={{ mt: 5, ml: 10 }} >
-            <Grid xs={7}>
+            <Grid xs={6}>
               <Card sx={{ width: 650, height: 550 }}>
                 <CardMedia
                   component="img"
@@ -193,22 +194,29 @@ function Home() {
               </Card>
             </Grid >
             <Grid xs={5}>
-              <Autocomplete
-                id="time"
-                options={time}
-                sx={{ width: 300 }}
-                renderInput={(params) => <TextField {...params} label="Time" />}
-              />
-              <Button variant="contained" sx={{ width: 100, height: 45, mt: 5, mr: 34 }}>
-                Reserve
-              </Button>
+              <Box sx={{
+                display: 'flex',
+                justifyContent: 'center',
+                alignItems: 'center',
+                flexDirection: 'column'
+              }}>
+                <Autocomplete
+                  id="time"
+                  options={time}
+                  sx={{ width: 300 }}
+                  renderInput={(params) => <TextField {...params} label="Time" />}
+                />
+                <Button variant="contained" sx={{ width: 100, height: 45, mt: 5 }}>
+                  Reserve
+                </Button>
+              </Box>
             </Grid>
           </Grid>
         </TabPanel>
 
         <TabPanel value={value} index={1}>
           <Grid container spacing={2} sx={{ mt: 5, ml: 10 }} >
-            <Grid xs={7}>
+            <Grid xs={6}>
               <Card sx={{ width: 650, height: 550 }}>
                 <CardMedia
                   component="img"
@@ -218,22 +226,29 @@ function Home() {
               </Card>
             </Grid >
             <Grid xs={5}>
-              <Autocomplete
-                id="time"
-                options={time}
-                sx={{ width: 300 }}
-                renderInput={(params) => <TextField {...params} label="Time" />}
-              />
-              <Button variant="contained" sx={{ width: 100, height: 45, mt: 5, mr: 34 }}>
-                Reserve
-              </Button>
+              <Box sx={{
+                display: 'flex',
+                justifyContent: 'center',
+                alignItems: 'center',
+                flexDirection: 'column'
+              }}>
+                <Autocomplete
+                  id="time"
+                  options={time}
+                  sx={{ width: 300 }}
+                  renderInput={(params) => <TextField {...params} label="Time" />}
+                />
+                <Button variant="contained" sx={{ width: 100, height: 45, mt: 5 }}>
+                  Reserve
+                </Button>
+              </Box>
             </Grid>
           </Grid>
         </TabPanel>
 
         <TabPanel value={value} index={2}>
           <Grid container spacing={2} sx={{ mt: 5, ml: 10 }} >
-            <Grid xs={7}>
+            <Grid xs={6}>
               <Card sx={{ width: 650, height: 550 }}>
                 <CardMedia
                   component="img"
@@ -243,22 +258,29 @@ function Home() {
               </Card>
             </Grid >
             <Grid xs={5}>
-              <Autocomplete
-                id="time"
-                options={time}
-                sx={{ width: 300 }}
-                renderInput={(params) => <TextField {...params} label="Time" />}
-              />
-              <Button variant="contained" sx={{ width: 100, height: 45, mt: 5, mr: 34 }}>
-                Reserve
-              </Button>
+              <Box sx={{
+                display: 'flex',
+                justifyContent: 'center',
+                alignItems: 'center',
+                flexDirection: 'column'
+              }}>
+                <Autocomplete
+                  id="time"
+                  options={time}
+                  sx={{ width: 300 }}
+                  renderInput={(params) => <TextField {...params} label="Time" />}
+                />
+                <Button variant="contained" sx={{ width: 100, height: 45, mt: 5 }}>
+                  Reserve
+                </Button>
+              </Box>
             </Grid>
           </Grid>
         </TabPanel>
 
         <TabPanel value={value} index={3}>
           <Grid container spacing={2} sx={{ mt: 5, ml: 10 }} >
-            <Grid xs={7}>
+            <Grid xs={6}>
               <Card sx={{ width: 650, height: 550 }}>
                 <CardMedia
                   component="img"
@@ -268,22 +290,29 @@ function Home() {
               </Card>
             </Grid >
             <Grid xs={5}>
-              <Autocomplete
-                id="time"
-                options={time}
-                sx={{ width: 300 }}
-                renderInput={(params) => <TextField {...params} label="Time" />}
-              />
-              <Button variant="contained" sx={{ width: 100, height: 45, mt: 5, mr: 34 }}>
-                Reserve
-              </Button>
+              <Box sx={{
+                display: 'flex',
+                justifyContent: 'center',
+                alignItems: 'center',
+                flexDirection: 'column'
+              }}>
+                <Autocomplete
+                  id="time"
+                  options={time}
+                  sx={{ width: 300 }}
+                  renderInput={(params) => <TextField {...params} label="Time" />}
+                />
+                <Button variant="contained" sx={{ width: 100, height: 45, mt: 5 }}>
+                  Reserve
+                </Button>
+              </Box>
             </Grid>
           </Grid>
         </TabPanel>
 
         <TabPanel value={value} index={4}>
           <Grid container spacing={2} sx={{ mt: 5, ml: 10 }} >
-            <Grid xs={7}>
+            <Grid xs={6}>
               <Card sx={{ width: 650, height: 550 }}>
                 <CardMedia
                   component="img"
@@ -293,22 +322,29 @@ function Home() {
               </Card>
             </Grid >
             <Grid xs={5}>
-              <Autocomplete
-                id="time"
-                options={time}
-                sx={{ width: 300 }}
-                renderInput={(params) => <TextField {...params} label="Time" />}
-              />
-              <Button variant="contained" sx={{ width: 100, height: 45, mt: 5, mr: 34 }}>
-                Reserve
-              </Button>
+              <Box sx={{
+                display: 'flex',
+                justifyContent: 'center',
+                alignItems: 'center',
+                flexDirection: 'column'
+              }}>
+                <Autocomplete
+                  id="time"
+                  options={time}
+                  sx={{ width: 300 }}
+                  renderInput={(params) => <TextField {...params} label="Time" />}
+                />
+                <Button variant="contained" sx={{ width: 100, height: 45, mt: 5 }}>
+                  Reserve
+                </Button>
+              </Box>
             </Grid>
           </Grid>
         </TabPanel>
 
         <TabPanel value={value} index={5}>
           <Grid container spacing={2} sx={{ mt: 5, ml: 10 }} >
-            <Grid xs={7}>
+            <Grid xs={6}>
               <Card sx={{ width: 650, height: 550 }}>
                 <CardMedia
                   component="img"
@@ -318,22 +354,29 @@ function Home() {
               </Card>
             </Grid >
             <Grid xs={5}>
-              <Autocomplete
-                id="time"
-                options={time}
-                sx={{ width: 300 }}
-                renderInput={(params) => <TextField {...params} label="Time" />}
-              />
-              <Button variant="contained" sx={{ width: 100, height: 45, mt: 5, mr: 34 }}>
-                Reserve
-              </Button>
+              <Box sx={{
+                display: 'flex',
+                justifyContent: 'center',
+                alignItems: 'center',
+                flexDirection: 'column'
+              }}>
+                <Autocomplete
+                  id="time"
+                  options={time}
+                  sx={{ width: 300 }}
+                  renderInput={(params) => <TextField {...params} label="Time" />}
+                />
+                <Button variant="contained" sx={{ width: 100, height: 45, mt: 5 }}>
+                  Reserve
+                </Button>
+              </Box>
             </Grid>
           </Grid>
         </TabPanel>
 
         <TabPanel value={value} index={6}>
-        <Grid container spacing={2} sx={{ mt: 5, ml: 10 }} >
-            <Grid xs={7}>
+          <Grid container spacing={2} sx={{ mt: 5, ml: 10 }} >
+            <Grid xs={6}>
               <Card sx={{ width: 650, height: 550 }}>
                 <CardMedia
                   component="img"
@@ -343,22 +386,29 @@ function Home() {
               </Card>
             </Grid >
             <Grid xs={5}>
-              <Autocomplete
-                id="time"
-                options={time}
-                sx={{ width: 300 }}
-                renderInput={(params) => <TextField {...params} label="Time" />}
-              />
-              <Button variant="contained" sx={{ width: 100, height: 45, mt: 5, mr: 34 }}>
-                Reserve
-              </Button>
+              <Box sx={{
+                display: 'flex',
+                justifyContent: 'center',
+                alignItems: 'center',
+                flexDirection: 'column'
+              }}>
+                <Autocomplete
+                  id="time"
+                  options={time}
+                  sx={{ width: 300 }}
+                  renderInput={(params) => <TextField {...params} label="Time" />}
+                />
+                <Button variant="contained" sx={{ width: 100, height: 45, mt: 5 }}>
+                  Reserve
+                </Button>
+              </Box>
             </Grid>
           </Grid>
         </TabPanel>
 
         <TabPanel value={value} index={7}>
-        <Grid container spacing={2} sx={{ mt: 5, ml: 10 }} >
-            <Grid xs={7}>
+          <Grid container spacing={2} sx={{ mt: 5, ml: 10 }} >
+            <Grid xs={6}>
               <Card sx={{ width: 650, height: 550 }}>
                 <CardMedia
                   component="img"
@@ -368,22 +418,29 @@ function Home() {
               </Card>
             </Grid >
             <Grid xs={5}>
-              <Autocomplete
-                id="time"
-                options={time}
-                sx={{ width: 300 }}
-                renderInput={(params) => <TextField {...params} label="Time" />}
-              />
-              <Button variant="contained" sx={{ width: 100, height: 45, mt: 5, mr: 34 }}>
-                Reserve
-              </Button>
+              <Box sx={{
+                display: 'flex',
+                justifyContent: 'center',
+                alignItems: 'center',
+                flexDirection: 'column'
+              }}>
+                <Autocomplete
+                  id="time"
+                  options={time}
+                  sx={{ width: 300 }}
+                  renderInput={(params) => <TextField {...params} label="Time" />}
+                />
+                <Button variant="contained" sx={{ width: 100, height: 45, mt: 5 }}>
+                  Reserve
+                </Button>
+              </Box>
             </Grid>
           </Grid>
         </TabPanel>
 
         <TabPanel value={value} index={8}>
-        <Grid container spacing={2} sx={{ mt: 5, ml: 10 }} >
-            <Grid xs={7}>
+          <Grid container spacing={2} sx={{ mt: 5, ml: 10 }} >
+            <Grid xs={6}>
               <Card sx={{ width: 650, height: 550 }}>
                 <CardMedia
                   component="img"
@@ -393,15 +450,22 @@ function Home() {
               </Card>
             </Grid >
             <Grid xs={5}>
-              <Autocomplete
-                id="time"
-                options={time}
-                sx={{ width: 300 }}
-                renderInput={(params) => <TextField {...params} label="Time" />}
-              />
-              <Button variant="contained" sx={{ width: 100, height: 45, mt: 5, mr: 34 }}>
-                Reserve
-              </Button>
+              <Box sx={{
+                display: 'flex',
+                justifyContent: 'center',
+                alignItems: 'center',
+                flexDirection: 'column'
+              }}>
+                <Autocomplete
+                  id="time"
+                  options={time}
+                  sx={{ width: 300 }}
+                  renderInput={(params) => <TextField {...params} label="Time" />}
+                />
+                <Button variant="contained" sx={{ width: 100, height: 45, mt: 5 }}>
+                  Reserve
+                </Button>
+              </Box>
             </Grid>
           </Grid>
         </TabPanel>
@@ -410,4 +474,4 @@ function Home() {
   );
 }
 
-export default Home;
+export default Court;
