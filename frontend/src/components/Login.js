@@ -13,7 +13,7 @@ import { createTheme, ThemeProvider } from '@mui/material/styles';
 
 //สร้างthemeควบคุมstyleแบบglobal
 const theme = createTheme();
-//hello
+
 function Login() {
   const handleSubmit = (event) => {
     event.preventDefault();
@@ -34,6 +34,7 @@ function Login() {
         //console.error('success:', data);
         if(data.status == 'ok'){
           localStorage.setItem('token', data.token)
+          localStorage.setItem('UserID', jsonData.UserID)
           window.location = '/Home';
           alert('login successfully')
         } else {

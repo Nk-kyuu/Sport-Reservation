@@ -57,47 +57,23 @@ app.post("/authen", jsonParser, (req, res, next) =>{
   try {
     const token = req.headers.authorization.split(" ")[1];
     const decoded = jwt.verify(token, secret);
+    const payload = decoded;
+    // Add the UserID to the request object for use in subsequent middleware
+    UserID = payload.UserID;
+    //console.log(UserID);
     res.json({ status: "ok", decoded });
   } catch (err) {
     res.json({ status: "error", message: err.message });
   }
 });
 
-const verifyToken = (req, res, next) => {
-  const authHeader = req.headers.authorization;
-
-  if (authHeader) {
-    // Extract the token from the Authorization header
-    const token = authHeader.split(' ')[1];
-
-    try {
-      // Verify the token and retrieve the payload
-      const payload = jwt.verify(token, process.env.JWT_SECRET);
-
-      // Add the UserID to the request object for use in subsequent middleware
-      req.UserID = payload.UserID;
-      next();
-    } catch (err) {
-      res.status(401).json({ error: 'Invalid token' });
-    }
-  } else {
-    res.status(401).json({ error: 'Authorization header not found' });
-  }
-};
-
-app.get('/dashboard', verifyToken, (req, res) => {
-  // Retrieve the user's data from the database using their UserID
-  const UserID = db.getUserById(req.UserID);
-
-  res.json({ UserID });
-});
-
-
 //reserve
 app.post("/reserve", jsonParser, (req, res, next) =>{
   const UserID = req.body.UserID;
+  console.log(UserID)
+  //update reserveStatus from reservation
   db.query(
-    'UPDATE reservation SET ReserveStatus = 1 WHERE UserID = ?',[UserID],
+    'UPDATE reservation, availability SET ReserveStatus = 1, Status = 1 WHERE UserID = ?',[UserID], //avaibilityID
     function (err, result, fields) {
       if (err) {
         res.json({ status: "error", message: "failed" });
@@ -106,10 +82,21 @@ app.post("/reserve", jsonParser, (req, res, next) =>{
         console.log(`Reservation ${UserID} updated to 1`);
          res.json({ status: "ok", message: "success"});
       }
-
     })
 })
 
+app.get('/user', (req, res) => {
+  db.query('SELECT * FROM user',(err, result) =>{
+    if (err) {
+       console.log(err);
+    }
+    else {
+      res.send(result);
+    }
+});
+})
+
+//app.post("/")
 
 //server port
 app.listen(5000, () => {

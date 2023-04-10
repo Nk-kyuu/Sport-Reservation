@@ -30,6 +30,7 @@ import images6 from './images/Badminton_Court3.jpeg';
 import images7 from './images/Volleyball_Court1.png';
 import images8 from './images/Volleyball_Court2.jpeg';
 import images9 from './images/Football_Court.jpeg';
+import { useEffect } from 'react';
 
 const time = [
   { label: '15.00 - 16.00' },
@@ -74,7 +75,31 @@ function a11yProps(index) {
   };
 }
 
-function Home() {
+function Court() {
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    fetch("http://localhost:5000/authen", {
+      method: "post",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: "Bearer " + token,
+      },
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        //console.error('success:', data);
+        if (data.status == "ok") {
+          //alert('authen successfully')
+        } else {
+          alert("please login");
+          localStorage.removeItem("token");
+          window.location = "/";
+        }
+      })
+      .catch((error) => {
+        console.error("Error:", error);
+      });
+  }, []);
   const [anchorEl, setAnchorEl] = React.useState(null);
 
 
@@ -410,4 +435,4 @@ function Home() {
   );
 }
 
-export default Home;
+export default Court;

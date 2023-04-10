@@ -96,7 +96,13 @@ function Home() {
 
   const handleClose = () => {
     setAnchorEl(null);
-  };
+  };  
+  
+  const handleLogout = (event) => {
+      event.preventDefault();
+      localStorage.removeItem("token");
+      window.location = "/";
+    };
 
   const [value, setValue] = React.useState(0);
 
@@ -106,12 +112,9 @@ function Home() {
 
   const handleOK = () => {
     window.location = "/Court";
+  };
 
-    const handleLogout = (event) => {
-      event.preventDefault();
-      localStorage.removeItem("token");
-      window.location = "/";
-    };
+
 
     const handleReserve = (event) => {
       const getUser = localStorage.getItem("UserID");
@@ -139,8 +142,7 @@ function Home() {
           console.error("Error:", error);
         });
     };
-  };
-
+  
   return (
     <Box>
       <AppBar position="static">
@@ -202,7 +204,7 @@ function Home() {
                 </ListItemIcon>
                 Verify Reservation
               </MenuItem>
-              <MenuItem onClick={handleClose}>
+              <MenuItem onClick={handleLogout}>
                 <ListItemIcon>
                   <Logout fontSize="small" />
                 </ListItemIcon>
@@ -247,6 +249,5 @@ function Home() {
       </Grid>
     </Box>
   );
-}
-
+            }
 export default Home;
