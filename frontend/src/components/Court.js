@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Container, Toolbar } from '@mui/material';
+import { Container, Toolbar, getRatingUtilityClass } from '@mui/material';
 import AppBar from '@mui/material/AppBar';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
@@ -30,17 +30,18 @@ import images6 from './images/Badminton_Court3.jpeg';
 import images7 from './images/Volleyball_Court1.png';
 import images8 from './images/Volleyball_Court2.jpeg';
 import images9 from './images/Football_Court.jpeg';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 
-const time = [
-  { label: '15.00 - 16.00' },
-  { label: '16.00 - 17.00' },
-  { label: '17.00 - 18.00' },
-  { label: '18.00 - 19.00' },
-  { label: '19.00 - 20.00' },
-  { label: '20.00 - 21.00' },
-  { label: '21.00 - 22.00' }
-]
+// const time = [
+//   { label: '15.00 - 16.00' },
+//   { label: '16.00 - 17.00' },
+//   { label: '17.00 - 18.00' },
+//   { label: '18.00 - 19.00' },
+//   { label: '19.00 - 20.00' },
+//   { label: '20.00 - 21.00' },
+//   { label: '21.00 - 22.00' }
+// ]
+
 
 function TabPanel(props) {
   const { children, value, index, ...other } = props;
@@ -75,9 +76,64 @@ function a11yProps(index) {
   };
 }
 
-function Court() {
-  const [anchorEl, setAnchorEl] = React.useState(null);
 
+function Court() {
+  const [times, setTimes] = useState([]);
+  const [selectedTime, setSelectedTime] = useState("");
+  const [courtNames, setCourtNames] = useState([]);
+  useEffect(() => {
+    //user authen
+    const token = localStorage.getItem("token");
+    fetch("http://localhost:5000/authen", {
+      method: "post",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: "Bearer " + token,
+      },
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        //console.error('success:', data);
+        if (data.status == "ok") {
+          //alert('authen successfully')
+        } else {
+          alert("please login");
+          localStorage.removeItem("token");
+          window.location = "/";
+        }
+      })
+      .catch((error) => {
+        console.error("Error:", error);
+      });
+
+    //get time lists
+    fetch('http://localhost:5000/times')
+      .then(response => response.json())
+      .then(data => setTimes(data))
+      .catch(error => console.log(error));
+
+    //get court lists
+    fetch('http://localhost:5000/court')
+    .then(response=>response.json())
+    .then(data => {
+      // map the response data to a new array that includes both CourtType and CourtNumber
+      const courtNames = data.map(court => ({
+        CourtType: court.CourtType,
+        CourtID: court.CourtID
+      }));
+      setCourtNames(courtNames);
+    })
+    .catch(error => console.log(error))
+  }, []);
+
+  const handleLogout = (event) => {
+    event.preventDefault();
+    localStorage.removeItem("token");
+    window.location = "/";
+  };
+
+
+  const [anchorEl, setAnchorEl] = React.useState(null);
 
   const handleMenu = (event) => {
     setAnchorEl(event.currentTarget);
@@ -93,12 +149,103 @@ function Court() {
     setValue(newValue);
   };
 
-  const handlelogout = () => {
-    window.location = '/';
-  }
+  const handleSelectTime = (event, value) => {
+    setSelectedTime(value.TimeList);
+    localStorage.setItem('selectedTime', value.TimeList);
+    // const getTime = localStorage.getItem('selectedTime');
+    // console.log(getTime)
+    //   const jsonData = {
+    //     Time: getTime,  
+    //   };
+    //   fetch("http://localhost:5000/getTimes", {
+    //     method: "post",
+    //     headers: {
+    //       "Content-Type": "application/json",
+    //     },
+    //     body: JSON.stringify(jsonData),
+        
+    //   })
+    //     .then((response) => response.json())
+    //     .then((data) => {
+    //       //console.error('success:', data);
+    //       if (data.status == "ok") {
+    //         //alert("update successfully");
+    //       } else {
+    //         alert("update failed");
+    //       }
+    //     })
+    //     .catch((error) => {
+    //       console.error("Error:", error);
+    //     });
+  };
+
+  const handleSelectCourt= (event, index) => {
+    const CourtID = courtNames[index].CourtID;
+    localStorage.setItem('CourtID', CourtID);
+    const getCourtID = localStorage.getItem('CourtID');
+    console.log(getCourtID)
+    // //console.log(`Clicked on court number ${CourtID}`);
+    // const jsonData = {
+    //   CourtID: getCourtID,  
+    // };
+    // fetch("http://localhost:5000/getCourt", {
+    //   method: "post",
+    //   headers: {
+    //     "Content-Type": "application/json",
+    //   },
+    //   body: JSON.stringify(jsonData),
+      
+    // })
+    //   .then((response) => response.json())
+    //   .then((data) => {
+    //     //console.error('success:', data);
+    //     if (data.status == "ok") {
+    //       //alert("update successfully");
+    //     } else {
+    //       alert("update failed");
+    //     }
+    //   })
+    //   .catch((error) => {
+    //     console.error("Error:", error);
+    //   });
+  };
+
+  const handleReserve = (event, date) => {
+    const getUser = localStorage.getItem("UserID");
+  const getDate = localStorage.getItem('Date');
+  const getCourtID = localStorage.getItem('CourtID');
+  const getTime = localStorage.getItem('selectedTime');
+    console.log(getDate)
+    const jsonData = {
+      UserID: getUser,
+      Date: getDate,
+      CourtID: getCourtID,
+      Time: getTime,
+    };
+    fetch("http://localhost:5000/reserve", {
+      method: "post",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(jsonData),
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        //console.error('success:', data);
+        if (data.status == "ok") {
+          alert("update successfully");
+        } else {
+          alert("update failed");
+        }
+      })
+      .catch((error) => {
+        console.error("Error:", error);
+      });
+  };
+
 
   return (
-    <Box sx={{ flexGrow: 1 }}>
+    <Box>
       <AppBar position="static">
         <Container maxWidth="xl">
           <Toolbar disableGutters>
@@ -106,7 +253,7 @@ function Court() {
             <CalendarMonthIcon sx={{ display: { xs: 'none', md: 'flex' }, mr: 1 }} />
             <Typography
               sx={{
-                flexGrow: 1,
+                mr: 143,    //ห่างจากโปรไฟล์
                 display: { xs: 'none', md: 'flex' },
                 fontFamily: 'Segoe UI',
                 fontWeight: 700,
@@ -155,17 +302,19 @@ function Court() {
                 </ListItemIcon>
                 Verify Reservation
               </MenuItem>
-              <MenuItem onClick={handlelogout}>
+              <MenuItem onClick={handleLogout}>
                 <ListItemIcon>
-                  <Logout />
+                  <Logout fontSize="small" />
                 </ListItemIcon>
                 Logout
               </MenuItem>
             </Menu>
+
           </Toolbar>
         </Container>
       </AppBar>
 
+{/* 
       <Box sx={{ width: '100%' }}>
         <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
           <Tabs value={value} onChange={handleChange} variant="scrollable"
@@ -181,11 +330,23 @@ function Court() {
             <Tab label="Volleyball Court2" {...a11yProps(7)} />
             <Tab label="Football Court" {...a11yProps(8)} />
           </Tabs>
+        </Box> */}
+
+        <Box sx={{ width: '100%' }}>
+        <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
+          <Tabs value={value} onChange={handleChange} variant="scrollable"
+            scrollButtons="auto"
+            aria-label="scrollable auto tabs example">
+            {courtNames.map((court, index) => (
+        <Tab label={court.CourtType} key={court.CourtType} {...a11yProps(index)} 
+        onClick={(event) => handleSelectCourt(event, index)}/>
+      ))}
+          </Tabs>
         </Box>
 
         <TabPanel value={value} index={0}>
           <Grid container spacing={2} sx={{ mt: 5, ml: 10 }} >
-            <Grid xs={6}>
+            <Grid xs={7}>
               <Card sx={{ width: 650, height: 550 }}>
                 <CardMedia
                   component="img"
@@ -195,29 +356,25 @@ function Court() {
               </Card>
             </Grid >
             <Grid xs={5}>
-              <Box sx={{
-                display: 'flex',
-                justifyContent: 'center',
-                alignItems: 'center',
-                flexDirection: 'column'
-              }}>
-                <Autocomplete
-                  id="time"
-                  options={time}
-                  sx={{ width: 300 }}
-                  renderInput={(params) => <TextField {...params} label="Time" />}
-                />
-                <Button variant="contained" sx={{ width: 100, height: 45, mt: 5 }}>
-                  Reserve
-                </Button>
-              </Box>
+              <Autocomplete
+                id="times"
+                options={times}
+                getOptionLabel={(option) => option.TimeList}
+                value={{ TimeList: selectedTime }}
+      onChange={handleSelectTime}
+                sx={{ width: 300 }}
+                renderInput={(params) => <TextField {...params} label="Times" />}
+              />
+              <Button variant="contained" onClick={handleReserve} sx={{ width: 100, height: 45, mt: 5, mr: 34 }}>
+                Reserve
+              </Button>
             </Grid>
           </Grid>
         </TabPanel>
 
         <TabPanel value={value} index={1}>
           <Grid container spacing={2} sx={{ mt: 5, ml: 10 }} >
-            <Grid xs={6}>
+            <Grid xs={7}>
               <Card sx={{ width: 650, height: 550 }}>
                 <CardMedia
                   component="img"
@@ -227,29 +384,25 @@ function Court() {
               </Card>
             </Grid >
             <Grid xs={5}>
-              <Box sx={{
-                display: 'flex',
-                justifyContent: 'center',
-                alignItems: 'center',
-                flexDirection: 'column'
-              }}>
-                <Autocomplete
-                  id="time"
-                  options={time}
-                  sx={{ width: 300 }}
-                  renderInput={(params) => <TextField {...params} label="Time" />}
-                />
-                <Button variant="contained" sx={{ width: 100, height: 45, mt: 5 }}>
-                  Reserve
-                </Button>
-              </Box>
+              <Autocomplete
+                id="times"
+                options={times}
+                getOptionLabel={(option) => option.TimeList}
+                value={{ TimeList: selectedTime }}
+      onChange={handleSelectTime}
+                sx={{ width: 300 }}
+                renderInput={(params) => <TextField {...params} label="Times" />}
+              />
+              <Button variant="contained" onClick={handleReserve} sx={{ width: 100, height: 45, mt: 5, mr: 34 }}>
+                Reserve
+              </Button>
             </Grid>
           </Grid>
         </TabPanel>
 
         <TabPanel value={value} index={2}>
           <Grid container spacing={2} sx={{ mt: 5, ml: 10 }} >
-            <Grid xs={6}>
+            <Grid xs={7}>
               <Card sx={{ width: 650, height: 550 }}>
                 <CardMedia
                   component="img"
@@ -259,29 +412,25 @@ function Court() {
               </Card>
             </Grid >
             <Grid xs={5}>
-              <Box sx={{
-                display: 'flex',
-                justifyContent: 'center',
-                alignItems: 'center',
-                flexDirection: 'column'
-              }}>
-                <Autocomplete
-                  id="time"
-                  options={time}
-                  sx={{ width: 300 }}
-                  renderInput={(params) => <TextField {...params} label="Time" />}
-                />
-                <Button variant="contained" sx={{ width: 100, height: 45, mt: 5 }}>
-                  Reserve
-                </Button>
-              </Box>
+              <Autocomplete
+                id="times"
+                options={times}
+                getOptionLabel={(option) => option.TimeList}
+                value={{ TimeList: selectedTime }}
+      onChange={handleSelectTime}
+                sx={{ width: 300 }}
+                renderInput={(params) => <TextField {...params} label="Times" />}
+              />
+              <Button variant="contained" onClick={handleReserve} sx={{ width: 100, height: 45, mt: 5, mr: 34 }}>
+                Reserve
+              </Button>
             </Grid>
           </Grid>
         </TabPanel>
 
         <TabPanel value={value} index={3}>
           <Grid container spacing={2} sx={{ mt: 5, ml: 10 }} >
-            <Grid xs={6}>
+            <Grid xs={7}>
               <Card sx={{ width: 650, height: 550 }}>
                 <CardMedia
                   component="img"
@@ -291,29 +440,26 @@ function Court() {
               </Card>
             </Grid >
             <Grid xs={5}>
-              <Box sx={{
-                display: 'flex',
-                justifyContent: 'center',
-                alignItems: 'center',
-                flexDirection: 'column'
-              }}>
-                <Autocomplete
-                  id="time"
-                  options={time}
-                  sx={{ width: 300 }}
-                  renderInput={(params) => <TextField {...params} label="Time" />}
-                />
-                <Button variant="contained" sx={{ width: 100, height: 45, mt: 5 }}>
-                  Reserve
-                </Button>
-              </Box>
+              <Autocomplete
+                id="times"
+                options={times}
+                //getOptionLabel={(option) => option.time}
+                getOptionLabel={(option) => option.TimeList}
+                value={{ TimeList: selectedTime }}
+      onChange={handleSelectTime}
+                sx={{ width: 300 }}
+                renderInput={(params) => <TextField {...params} label="Times" />}
+              />
+              <Button variant="contained" onClick={handleReserve} sx={{ width: 100, height: 45, mt: 5, mr: 34 }}>
+                Reserve
+              </Button>
             </Grid>
           </Grid>
         </TabPanel>
 
         <TabPanel value={value} index={4}>
           <Grid container spacing={2} sx={{ mt: 5, ml: 10 }} >
-            <Grid xs={6}>
+            <Grid xs={7}>
               <Card sx={{ width: 650, height: 550 }}>
                 <CardMedia
                   component="img"
@@ -323,29 +469,25 @@ function Court() {
               </Card>
             </Grid >
             <Grid xs={5}>
-              <Box sx={{
-                display: 'flex',
-                justifyContent: 'center',
-                alignItems: 'center',
-                flexDirection: 'column'
-              }}>
-                <Autocomplete
-                  id="time"
-                  options={time}
-                  sx={{ width: 300 }}
-                  renderInput={(params) => <TextField {...params} label="Time" />}
-                />
-                <Button variant="contained" sx={{ width: 100, height: 45, mt: 5 }}>
-                  Reserve
-                </Button>
-              </Box>
+              <Autocomplete
+                id="times"
+                options={times}
+                getOptionLabel={(option) => option.TimeList}
+                value={{ TimeList: selectedTime }}
+      onChange={handleSelectTime}
+                sx={{ width: 300 }}
+                renderInput={(params) => <TextField {...params} label="Times" />}
+              />
+              <Button variant="contained" onClick={handleReserve} sx={{ width: 100, height: 45, mt: 5, mr: 34 }}>
+                Reserve
+              </Button>
             </Grid>
           </Grid>
         </TabPanel>
 
         <TabPanel value={value} index={5}>
           <Grid container spacing={2} sx={{ mt: 5, ml: 10 }} >
-            <Grid xs={6}>
+            <Grid xs={7}>
               <Card sx={{ width: 650, height: 550 }}>
                 <CardMedia
                   component="img"
@@ -355,29 +497,25 @@ function Court() {
               </Card>
             </Grid >
             <Grid xs={5}>
-              <Box sx={{
-                display: 'flex',
-                justifyContent: 'center',
-                alignItems: 'center',
-                flexDirection: 'column'
-              }}>
-                <Autocomplete
-                  id="time"
-                  options={time}
-                  sx={{ width: 300 }}
-                  renderInput={(params) => <TextField {...params} label="Time" />}
-                />
-                <Button variant="contained" sx={{ width: 100, height: 45, mt: 5 }}>
-                  Reserve
-                </Button>
-              </Box>
+              <Autocomplete
+                id="times"
+                options={times}
+                getOptionLabel={(option) => option.TimeList}
+                value={{ TimeList: selectedTime }}
+      onChange={handleSelectTime}
+                sx={{ width: 300 }}
+                renderInput={(params) => <TextField {...params} label="Times" />}
+              />
+              <Button variant="contained" onClick={handleReserve} sx={{ width: 100, height: 45, mt: 5, mr: 34 }}>
+                Reserve
+              </Button>
             </Grid>
           </Grid>
         </TabPanel>
 
         <TabPanel value={value} index={6}>
-          <Grid container spacing={2} sx={{ mt: 5, ml: 10 }} >
-            <Grid xs={6}>
+        <Grid container spacing={2} sx={{ mt: 5, ml: 10 }} >
+            <Grid xs={7}>
               <Card sx={{ width: 650, height: 550 }}>
                 <CardMedia
                   component="img"
@@ -387,29 +525,25 @@ function Court() {
               </Card>
             </Grid >
             <Grid xs={5}>
-              <Box sx={{
-                display: 'flex',
-                justifyContent: 'center',
-                alignItems: 'center',
-                flexDirection: 'column'
-              }}>
-                <Autocomplete
-                  id="time"
-                  options={time}
-                  sx={{ width: 300 }}
-                  renderInput={(params) => <TextField {...params} label="Time" />}
-                />
-                <Button variant="contained" sx={{ width: 100, height: 45, mt: 5 }}>
-                  Reserve
-                </Button>
-              </Box>
+              <Autocomplete
+                id="times"
+                options={times}
+                getOptionLabel={(option) => option.TimeList}
+                value={{ TimeList: selectedTime }}
+      onChange={handleSelectTime}
+                sx={{ width: 300 }}
+                renderInput={(params) => <TextField {...params} label="Times" />}
+              />
+              <Button variant="contained" onClick={handleReserve} sx={{ width: 100, height: 45, mt: 5, mr: 34 }}>
+                Reserve
+              </Button>
             </Grid>
           </Grid>
         </TabPanel>
 
         <TabPanel value={value} index={7}>
-          <Grid container spacing={2} sx={{ mt: 5, ml: 10 }} >
-            <Grid xs={6}>
+        <Grid container spacing={2} sx={{ mt: 5, ml: 10 }} >
+            <Grid xs={7}>
               <Card sx={{ width: 650, height: 550 }}>
                 <CardMedia
                   component="img"
@@ -419,29 +553,25 @@ function Court() {
               </Card>
             </Grid >
             <Grid xs={5}>
-              <Box sx={{
-                display: 'flex',
-                justifyContent: 'center',
-                alignItems: 'center',
-                flexDirection: 'column'
-              }}>
-                <Autocomplete
-                  id="time"
-                  options={time}
-                  sx={{ width: 300 }}
-                  renderInput={(params) => <TextField {...params} label="Time" />}
-                />
-                <Button variant="contained" sx={{ width: 100, height: 45, mt: 5 }}>
-                  Reserve
-                </Button>
-              </Box>
+              <Autocomplete
+                id="times"
+                options={times}
+                getOptionLabel={(option) => option.TimeList}
+                value={{ TimeList: selectedTime }}
+      onChange={handleSelectTime}
+                sx={{ width: 300 }}
+                renderInput={(params) => <TextField {...params} label="Times" />}
+              />
+              <Button variant="contained" onClick={handleReserve} sx={{ width: 100, height: 45, mt: 5, mr: 34 }}>
+                Reserve
+              </Button>
             </Grid>
           </Grid>
         </TabPanel>
 
         <TabPanel value={value} index={8}>
-          <Grid container spacing={2} sx={{ mt: 5, ml: 10 }} >
-            <Grid xs={6}>
+        <Grid container spacing={2} sx={{ mt: 5, ml: 10 }} >
+            <Grid xs={7}>
               <Card sx={{ width: 650, height: 550 }}>
                 <CardMedia
                   component="img"
@@ -451,22 +581,74 @@ function Court() {
               </Card>
             </Grid >
             <Grid xs={5}>
-              <Box sx={{
-                display: 'flex',
-                justifyContent: 'center',
-                alignItems: 'center',
-                flexDirection: 'column'
-              }}>
-                <Autocomplete
-                  id="time"
-                  options={time}
-                  sx={{ width: 300 }}
-                  renderInput={(params) => <TextField {...params} label="Time" />}
+              <Autocomplete
+                id="times"
+                options={times}
+                getOptionLabel={(option) => option.TimeList}
+                value={{ TimeList: selectedTime }}
+      onChange={handleSelectTime}
+                sx={{ width: 300 }}
+                renderInput={(params) => <TextField {...params} label="Times" />}
+              />
+              <Button variant="contained" onClick={handleReserve} sx={{ width: 100, height: 45, mt: 5, mr: 34 }}>
+                Reserve
+              </Button>
+            </Grid>
+          </Grid>
+        </TabPanel>
+
+        <TabPanel value={value} index={9}>
+        <Grid container spacing={2} sx={{ mt: 5, ml: 10 }} >
+            <Grid xs={7}>
+              <Card sx={{ width: 650, height: 550 }}>
+                <CardMedia
+                  component="img"
+                  height="550"
+                  image={images9}
                 />
-                <Button variant="contained" sx={{ width: 100, height: 45, mt: 5 }}>
-                  Reserve
-                </Button>
-              </Box>
+              </Card>
+            </Grid >
+            <Grid xs={5}>
+              <Autocomplete
+                id="times"
+                options={times}
+                getOptionLabel={(option) => option.TimeList}
+                value={{ TimeList: selectedTime }}
+      onChange={handleSelectTime}
+                sx={{ width: 300 }}
+                renderInput={(params) => <TextField {...params} label="Times" />}
+              />
+              <Button variant="contained" onClick={handleReserve} sx={{ width: 100, height: 45, mt: 5, mr: 34 }}>
+                Reserve
+              </Button>
+            </Grid>
+          </Grid>
+        </TabPanel>
+
+        <TabPanel value={value} index={10}>
+        <Grid container spacing={2} sx={{ mt: 5, ml: 10 }} >
+            <Grid xs={7}>
+              <Card sx={{ width: 650, height: 550 }}>
+                <CardMedia
+                  component="img"
+                  height="550"
+                  image={images9}
+                />
+              </Card>
+            </Grid >
+            <Grid xs={5}>
+              <Autocomplete
+                id="times"
+                options={times}
+                getOptionLabel={(option) => option.TimeList}
+                value={{ TimeList: selectedTime }}
+      onChange={handleSelectTime}
+                sx={{ width: 300 }}
+                renderInput={(params) => <TextField {...params} label="Times" />}
+              />
+              <Button variant="contained" onClick={handleReserve} sx={{ width: 100, height: 45, mt: 5, mr: 34 }}>
+                Reserve
+              </Button>
             </Grid>
           </Grid>
         </TabPanel>

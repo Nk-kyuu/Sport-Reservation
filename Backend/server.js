@@ -96,14 +96,24 @@ app.get('/dashboard', verifyToken, (req, res) => {
 //reserve
 app.post("/reserve", jsonParser, (req, res, next) =>{
   const UserID = req.body.UserID;
+  const Date = req.body.Date;
+  const Time = req.body.Time;
+  const CourtID = req.body.CourtID;
+  // console.log(UserID)
+  // console.log(Date)
+  // console.log(Time)
+  // console.log(CourtID)
+  //update reserveStatus from reservation
+  // const checkTimeID = db.query('SELECT timesID FROM times WHERE TimeList =?',[Time])
+  //const checkAvail = db.query('SELECT AvailabilityID FROM availabilty WHERE CourtID =?, dates =?, timesID=?',[CourtID,Date,checkTimeID])
   db.query(
-    'UPDATE reservation SET ReserveStatus = 1 WHERE UserID = ?',[UserID],
+    'INSERT INTO reservation( ReserveDate ,ReserveStatus , UserID, AvailableID)  VALUES(?,1,?,3)',[Date,UserID,], //avaibilityID
     function (err, result, fields) {
       if (err) {
         res.json({ status: "error", message: "failed" });
         return;
       } else {
-        console.log(`Reservation ${UserID} updated to 1`);
+        //console.log(`Reservation ${UserID} updated to 1`);
          res.json({ status: "ok", message: "success"});
       }
 
@@ -291,6 +301,89 @@ app.put("/availabilities/:id", jsonParser, (req, res) => {
   );
 });
 
+app.post("/checkdate", jsonParser,(req,res,next)=>{
+  const Date = req.body.Date;
+  console.log(Date)
+  db.query(
+    'UPDATE reservation SET ReserveStatus = 0 WHERE ReserveDate = ?',[Date], //avaibilityID
+    function (err, result, fields) {
+      if (err) {
+        res.json({ status: "error", message: "failed" });
+        return;
+      } else {
+        console.log(`Reservation ${Date} updated to 0`);
+         res.json({ status: "ok", message: "success"});
+      }
+    })
+})
+
+//get time to show in front
+app.get('/times', (req, res) => {
+  db.query('SELECT TimeList FROM times',(err,result) =>{
+    if (err) {
+      console.log(err);
+   }
+   else {
+     res.send(result);
+   }
+  })
+})
+
+//getTime test
+// app.post('/getTimes',jsonParser, (req, res) => {
+//   const Time = req.body.Time;
+//   console.log(Time)
+//   db.query('SELECT TimeList FROM times WHERE TimeList = ?',[Time], (err, result) => {
+//     if (err) {
+//       res.json({ status: "error", message: "failed" });
+//       return;
+//     } else {
+//       console.log(`Reservation ${Time} updated to 0`);
+//        res.json({ status: "ok", message: "success"});
+//     }
+//   })
+// })
+
+//get Court lists
+app.get('/court', (req,res)=>{
+  db.query('SELECT * FROM court',(err,result)=>{
+    if(err){
+      console.log(err);
+    }
+    else{
+      res.send(result);
+    }
+  })
+})
+
+//getCourtID test
+// app.post('/getCourt', jsonParser,(req,res)=>{
+//   const CourtID = req.body.CourtID;
+//   console.log(CourtID);
+//   db.query('SELECT * FROM court WHERE CourtID = ?',[CourtID], (err, result) => {
+//     if (err) {
+//       res.json({ status: "error", message: "failed" });
+//       return;
+//     } else {
+//       console.log(`Reservation ${CourtID} updated to 0`);
+//        res.json({ status: "ok", message: "success"});
+//     }
+//   })
+
+// } )
+
+//show reservation
+app.get('/reservation', (req,res) =>{
+  const Date = req.body.Date;
+  db.query('SELECT CourtID,timesID, CourtType, Floor FROM availability,court WHERE availability.dates = ?',[Date], (err, result) => {
+    if (err) {
+      console.log(err);
+   }
+   else {
+     res.send(result);
+   }
+});
+})
 
 //server port
 app.listen(5000, () => {

@@ -29,7 +29,8 @@ import images6 from "./images/Badminton_Court3.jpeg";
 import images7 from "./images/Volleyball_Court1.png";
 import images8 from "./images/Volleyball_Court2.jpeg";
 import images9 from "./images/Football_Court.jpeg";
-import { useEffect, useState, Button } from "react";
+import { useEffect, useState } from "react";
+
 //add
 const itemData = [
   {
@@ -89,6 +90,8 @@ function Home() {
   }, []);
 
   const [anchorEl, setAnchorEl] = React.useState(null);
+  const [selectedDate, setSelectedDate] = useState(localStorage.getItem('selectedDate') || null);
+  //console.log(dates);
 
   const handleMenu = (event) => {
     setAnchorEl(event.currentTarget);
@@ -110,34 +113,30 @@ function Home() {
     setValue(newValue);
   };
 
-  const handleOK = () => {
-    window.location = "/Court";
-  };
 
-
-
-    const handlelogout = () => {
-        window.location = '/';
-    }
-
-    const handleReserve = (event) => {
-      const getUser = localStorage.getItem("UserID");
-      //console.log(getUser)
+  const handleSelectDate = (date) => {
+    //window.location = "/Court";
+    setSelectedDate(date);
+    const formatDate = dayjs(selectedDate).format('YYYY-MM-DD');
+    localStorage.setItem('Date', formatDate);
+    const getDate = localStorage.getItem('Date')
+    console.log(getDate)
       const jsonData = {
-        UserID: getUser,
+        Date: getDate,  
       };
-      fetch("http://localhost:5000/reserve", {
+      fetch("http://localhost:5000/checkdate", {
         method: "post",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify(jsonData),
+        
       })
         .then((response) => response.json())
         .then((data) => {
           //console.error('success:', data);
           if (data.status == "ok") {
-            alert("update successfully");
+            //alert("update successfully");
           } else {
             alert("update failed");
           }
@@ -145,7 +144,7 @@ function Home() {
         .catch((error) => {
           console.error("Error:", error);
         });
-    };
+  };
   
   return (
     <Box>
@@ -238,13 +237,34 @@ function Home() {
           </ImageList>
         </Grid>
 
+        {/* <Grid xs={5}>
+              <Autocomplete
+                id="dates"
+                options={dates}
+                getOptionLabel={(option) => option.TimeList}
+                value={{ TimeList: selectedTime }}
+                onChange={handleSelectTime}
+                sx={{ width: 300 }}
+                renderInput={(params) => (
+                  <TextField {...params} label="Times" />
+                )}
+              />
+              <Button
+                variant="contained"
+                onClick={handleReserve}
+                sx={{ width: 100, height: 45, mt: 5, mr: 34 }}
+              >
+                Reserve
+              </Button>
+            </Grid> */}
         <Grid xs={6}>
           <Container sx={{ mt: 25 }}>
             <LocalizationProvider dateAdapter={AdapterDayjs}>
-              <DemoContainer components={["DateCalendar"]}>
+              <DemoContainer components={["DateCalendar"]} >
                 <DateCalendar
                   defaultValue={dayjs("2022-04-17")}
-                  onChange={handleOK}
+                 date={selectedDate}
+      onChange={handleSelectDate}
                 />
               </DemoContainer>
             </LocalizationProvider>

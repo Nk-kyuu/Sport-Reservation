@@ -32,6 +32,8 @@ const saltRounds = 10;
 //   })
 // );
 
+
+//bcrypt
 // db.query(
 //     "SELECT UserID, password FROM user",
 //     function (error, result, fields) {
