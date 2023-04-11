@@ -92,6 +92,11 @@ app.get('/dashboard', verifyToken, (req, res) => {
   res.json({ UserID });
 });
 
+//check reservation privilege
+app.post('/checkrev', jsonParser, (req,res,next)=>{
+  const UserID = req.body.UserID;
+  
+})
 
 //reserve
 app.post("/reserve", jsonParser, (req, res, next) =>{
@@ -106,18 +111,72 @@ app.post("/reserve", jsonParser, (req, res, next) =>{
   //update reserveStatus from reservation
   // const checkTimeID = db.query('SELECT timesID FROM times WHERE TimeList =?',[Time])
   //const checkAvail = db.query('SELECT AvailabilityID FROM availabilty WHERE CourtID =?, dates =?, timesID=?',[CourtID,Date,checkTimeID])
-  db.query(
-    'INSERT INTO reservation( ReserveDate ,ReserveStatus , UserID, AvailableID)  VALUES(?,1,?,3)',[Date,UserID,], //avaibilityID
-    function (err, result, fields) {
-      if (err) {
-        res.json({ status: "error", message: "failed" });
+  
+  db.beginTransaction((error) => {
+    if (error){
+      console.error('Error beginning transaction:', error);
+      return res.status(500).json({ error: 'Internal server error' });
+    };
+
+    const timeQuery ="SELECT timesID FROM times WHERE TimeList =?";
+    const timeValues = [Time];
+    db.query(timeQuery, timeValues, (error, timeResult) => {
+      if (error) {
+        db.rollback(() => {
+          throw error;
+        });
         return;
-      } else {
-        //console.log(`Reservation ${UserID} updated to 1`);
-         res.json({ status: "ok", message: "success"});
       }
 
-    })
+      const timesID = timeResult.insertId;
+
+      const availabilityQuery = 'SELECT AvailabilityID FROM availabilty WHERE CourtID =?, dates =?, timesID=?';
+      const availabilityValues = [CourtID,Date,timesID];
+      db.query(availabilityQuery, availabilityValues, (error, availabilityResult) => {
+        if (error) {
+          console.error('Error inserting into availability table:', error);
+          db.rollback(() => {
+            res.status(500).json({ error: 'Internal server error' });
+          });
+          return;
+        }
+
+        const availabilityID = availabilityResult.insertId;
+
+        const reservationQuery = 'INSERT INTO reservation( ReserveDate ,ReserveStatus , UserID, AvailableID) VALUES (?, 1, ?, ?)';
+        const reservationValues = [Date,UserID, availabilityID];
+        db.query(reservationQuery, reservationValues, (error, reservationResult) => {
+          if (error) {
+            db.rollback(() => {
+              throw error;
+            });
+          }
+
+          db.commit((error) => {
+            if (error) {
+              db.rollback(() => {
+                throw error;
+              });
+            }
+
+            res.status(201).json({ message: 'Reservation created', reservationID: reservationResult.insertId });
+          });
+        });
+      });
+    });
+  });
+  // db.query(
+  //   'INSERT INTO reservation( ReserveDate ,ReserveStatus , UserID, AvailableID)  VALUES(?,1,?,3)',[Date,UserID,], //avaibilityID
+  //   function (err, result, fields) {
+  //     if (err) {
+  //       res.json({ status: "error", message: "failed" });
+  //       return;
+  //     } else {
+  //       //console.log(`Reservation ${UserID} updated to 1`);
+  //        res.json({ status: "ok", message: "success"});
+  //     }
+
+  //   })
 })
 
 //----------------------------------------------------------------------------------------------------------------//

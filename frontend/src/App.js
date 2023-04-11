@@ -6,6 +6,7 @@ import Home from './components/Home';
 import Court from "./components/Court";
 import AdminHome from "./components/AdminHome";
 import UserDataManage from "./components/UserDataManage";
+import MyReservation from "./components/MyReservaion";
 
 function App() {
   return (
@@ -17,6 +18,7 @@ function App() {
           <Route path="/Court" element={<Court />} />
           <Route path="/AdminHome" element={<AdminHome />} />
           <Route path="/UserDataManage" element={<UserDataManage />} />
+          <Route path="/MyReservation" element={<MyReservation/>} />
         </Routes>
       </BrowserRouter>
     </div>
