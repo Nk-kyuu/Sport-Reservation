@@ -11,7 +11,6 @@ import IconButton from '@mui/material/IconButton';
 import MenuIcon from '@mui/icons-material/Menu';
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
-import ListItem from '@mui/material/ListItem';
 import ListItemIcon from '@mui/material/ListItemIcon';
 import ArticleOutlinedIcon from '@mui/icons-material/ArticleOutlined';
 import Logout from '@mui/icons-material/Logout';
@@ -19,7 +18,7 @@ import ManageAccountsIcon from '@mui/icons-material/ManageAccounts';
 import PropTypes from 'prop-types';
 import Tabs from '@mui/material/Tabs';
 import Tab from '@mui/material/Tab';
-import { Container, Grid, Button } from '@mui/material';
+import { Button } from '@mui/material';
 import Table from '@mui/material/Table';
 import TableBody from '@mui/material/TableBody';
 import TableCell from '@mui/material/TableCell';
@@ -27,10 +26,9 @@ import TableContainer from '@mui/material/TableContainer';
 import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
 import Paper from '@mui/material/Paper';
-import TextField from '@mui/material/TextField';
-import Autocomplete from '@mui/material/Autocomplete';
 import Switch from '@mui/material/Switch';
 import MenuItem from '@mui/material/MenuItem';
+import FormControlLabel from '@mui/material/FormControlLabel';
 import axios from "axios";
 
 
@@ -139,18 +137,6 @@ function a11yProps(index) {
 //
 
 //ส่วนtable
-function createData(name, calories, fat, carbs, protein) {
-    return { name, calories, fat, carbs, protein };
-}
-
-const rows = [
-    createData('Frozen yoghurt', 159, 6.0, 24, 4.0),
-    createData('Ice cream sandwich', 237, 9.0, 37, 4.3),
-    createData('Eclair', 262, 16.0, 24, 6.0),
-    createData('Cupcake', 305, 3.7, 67, 4.3),
-    createData('Gingerbread', 356, 16.0, 49, 3.9),
-];
-
 const Date = [
     { label: 'วันที่ 1' },
     { label: 'วันที่ 2' },
@@ -197,7 +183,8 @@ function AdminHome() {
     const AvailabilityList = () => {
         const [availabilities, setAvailabilities] = useState([]);
         const [order, setOrder] = useState("asc");
-    
+        const [toggleAllChecked, setToggleAllChecked] = useState(false);
+      
         useEffect(() => {
           axios
             .get("http://localhost:5000/availabilities")
@@ -208,7 +195,7 @@ function AdminHome() {
               console.log(err);
             });
         }, []);
-    
+      
         const toggleAvailabilityStatus = (id, status) => {
           const newStatus = status === 1 ? 0 : 1;
           axios
@@ -216,7 +203,6 @@ function AdminHome() {
               Status: newStatus,
             })
             .then((res) => {
-              // Update the availabilities array with the updated availability
               const updatedAvailabilities = availabilities.map((availability) =>
                 availability.AvailabilityID === id
                   ? { ...availability, Status: newStatus }
@@ -227,8 +213,31 @@ function AdminHome() {
             .catch((err) => {
               console.log(err);
             });
-        };  
-    
+        };
+      
+        const toggleAllAvailabilityStatus = () => {
+          const newStatus = toggleAllChecked ? 0 : 1;
+          setToggleAllChecked(!toggleAllChecked);
+      
+          Promise.all(
+            availabilities.map((availability) =>
+              axios.put(`http://localhost:5000/availabilities/${availability.AvailabilityID}`, {
+                Status: newStatus,
+              })
+            )
+          )
+            .then(() => {
+              const updatedAvailabilities = availabilities.map((availability) => ({
+                ...availability,
+                Status: newStatus,
+              }));
+              setAvailabilities(updatedAvailabilities);
+            })
+            .catch((err) => {
+              console.log(err);
+            });
+        };
+      
         const sortByAvailabilityId = () => {
           const sortedAvailabilities = [...availabilities].sort(
             (a, b) =>
@@ -239,58 +248,194 @@ function AdminHome() {
           setOrder(order === "asc" ? "desc" : "asc");
           setAvailabilities(sortedAvailabilities);
         };
-    
+      
+      return (
+        <>
+          <Button onClick={sortByAvailabilityId} variant="contained">
+            Sort by Availability ID ({order})
+          </Button>
+          &nbsp;&nbsp;&nbsp;&nbsp;
+          <FormControlLabel
+            control={
+              <Switch 
+                checked={toggleAllChecked}
+                onChange={toggleAllAvailabilityStatus}
+              />
+            }
+            label="Toggle All"
+          />
+          <TableContainer component={Paper} sx={{ width: "100%", height: 550 }}>
+            <Table sx={{ minWidth: 650 }} aria-label="simple table">
+              <TableHead>
+                <TableRow>
+                  <TableCell>Availability ID</TableCell>
+                  <TableCell>Court Type</TableCell>
+                  <TableCell>Date</TableCell>
+                  <TableCell>TimeList</TableCell>
+                  <TableCell>Status</TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {availabilities.map((availability) => (
+                  <TableRow
+                    key={availability.AvailabilityID}
+                    sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
+                  >
+                    <TableCell component="th" scope="row">
+                      {availability.AvailabilityID}
+                    </TableCell>
+                    <TableCell>{availability.CourtType}</TableCell>
+                    <TableCell>{availability.dates}</TableCell>
+                    <TableCell>{availability.TimeList}</TableCell>
+                    <TableCell sx={{ width: 200 }}>
+                      <Switch
+                        checked={availability.Status > 0 ? true : false}
+                        onChange={() =>
+                          toggleAvailabilityStatus(
+                            availability.AvailabilityID,
+                            availability.Status
+                          )
+                        }
+                      />
+                      {availability.Status > 0 ? "Available" : "Unavailable"}
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </TableContainer>
+        </>
+      );
+    };
+      
+      const CourtAvailabilityList = ({ courtId }) => {
+        const [availabilities, setAvailabilities] = useState([]);
+        const [order, setOrder] = useState("asc");
+        const [toggleAllChecked, setToggleAllChecked] = useState(false);
+      
+        useEffect(() => {
+          axios
+            .get(`http://localhost:5000/availabilities/${courtId}`)
+            .then((res) => {
+              setAvailabilities(res.data);
+            })
+            .catch((err) => {
+              console.log(err);
+            });
+        }, [courtId]);
+      
+        const toggleAvailabilityStatus = (id, status) => {
+            const newStatus = status === 1 ? 0 : 1;
+            axios
+              .put(`http://localhost:5000/availabilities/${id}`, {
+                Status: newStatus,
+              })
+              .then((res) => {
+                const updatedAvailabilities = availabilities.map((availability) =>
+                  availability.AvailabilityID === id
+                    ? { ...availability, Status: newStatus }
+                    : availability
+                );
+                setAvailabilities(updatedAvailabilities);
+              })
+              .catch((err) => {
+                console.log(err);
+              });
+          };
+        
+          const toggleAllAvailabilityStatus = () => {
+            const newStatus = toggleAllChecked ? '0' : 1;
+            setToggleAllChecked(!toggleAllChecked);
+        
+            Promise.all(
+              availabilities.map((availability) =>
+                axios.put(`http://localhost:5000/availabilities/${availability.AvailabilityID}`, {
+                  Status: newStatus,
+                })
+              )
+            )
+              .then(() => {
+                const updatedAvailabilities = availabilities.map((availability) => ({
+                  ...availability,
+                  Status: newStatus,
+                }));
+                setAvailabilities(updatedAvailabilities);
+              })
+              .catch((err) => {
+                console.log(err);
+              });
+          };
+        
+          const sortByAvailabilityId = () => {
+            const sortedAvailabilities = [...availabilities].sort(
+              (a, b) =>
+                order === "asc"
+                  ? a.AvailabilityID - b.AvailabilityID
+                  : b.AvailabilityID - a.AvailabilityID
+            );
+            setOrder(order === "asc" ? "desc" : "asc");
+            setAvailabilities(sortedAvailabilities);
+          };
+        
         return (
-            <>
+          <>
             <Button onClick={sortByAvailabilityId} variant="contained">
-                Sort by Availability ID ({order})
+              Sort by Availability ID ({order})
             </Button>
+            &nbsp;&nbsp;&nbsp;&nbsp;
+            <FormControlLabel
+              control={
+                <Switch 
+                  checked={toggleAllChecked}
+                  onChange={toggleAllAvailabilityStatus}
+                />
+              }
+              label="Toggle All"
+            />
             <TableContainer component={Paper} sx={{ width: "100%", height: 550 }}>
-                <Table sx={{ minWidth: 650 }} aria-label="simple table">
-                    <TableHead>
-                    <TableRow>
-                        <TableCell>Availability ID</TableCell>
-                        <TableCell>Court Type</TableCell>
-                        <TableCell>Date</TableCell>
-                        <TableCell>Start Time</TableCell>
-                        <TableCell>End Time</TableCell>
-                        <TableCell>Status</TableCell>
+              <Table sx={{ minWidth: 650 }} aria-label="simple table">
+                <TableHead>
+                  <TableRow>
+                    <TableCell>Availability ID</TableCell>
+                    <TableCell>Court Type</TableCell>
+                    <TableCell>Date</TableCell>
+                    <TableCell>TimeList</TableCell>
+                    <TableCell>Status</TableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {availabilities.map((availability) => (
+                    <TableRow
+                      key={availability.AvailabilityID}
+                      sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
+                    >
+                      <TableCell component="th" scope="row">
+                        {availability.AvailabilityID}
+                      </TableCell>
+                      <TableCell>{availability.CourtType}</TableCell>
+                      <TableCell>{availability.dates}</TableCell>
+                      <TableCell>{availability.TimeList}</TableCell>
+                      <TableCell sx={{ width: 200 }}>
+                        <Switch
+                          checked={availability.Status > 0 ? true : false}
+                          onChange={() =>
+                            toggleAvailabilityStatus(
+                              availability.AvailabilityID,
+                              availability.Status
+                            )
+                          }
+                        />
+                        {availability.Status > 0 ? "Available" : "Unavailable"}
+                      </TableCell>
                     </TableRow>
-                    </TableHead>
-                    <TableBody>
-                    {availabilities.map((availability) => (
-                        <TableRow
-                        key={availability.AvailabilityID}
-                        sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
-                        >
-                        <TableCell component="th" scope="row">
-                            {availability.AvailabilityID}
-                        </TableCell>
-                        <TableCell>{availability.CourtType}</TableCell>
-                        <TableCell>{availability.dates}</TableCell>
-                        <TableCell>{availability.startTime}</TableCell>
-                        <TableCell>{availability.endTime}</TableCell>
-                        <TableCell>
-                            <Switch
-                            checked={availability.Status === 1}
-                            onChange={() =>
-                                toggleAvailabilityStatus(
-                                availability.AvailabilityID,
-                                availability.Status
-                                )
-                            } 
-                            />
-                            {availability.Status === '1' ? "Available" : "Unavailable"}
-                        </TableCell>
-                        </TableRow>
-                    ))}
-                    </TableBody>
-                </Table>
+                  ))}
+                </TableBody>
+              </Table>
             </TableContainer>
-            </>
+          </>
         );
-      };
-
+      };      
+    
     return (
         <Box sx={{ display: 'flex' }}>
             <CssBaseline />
@@ -350,107 +495,55 @@ function AdminHome() {
                     <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
                         <Tabs value={value} onChange={handleChange} aria-label="basic tabs example" variant="scrollable">
                             <Tab label="All" {...a11yProps(0)} />
-                            <Tab label="Basketball Court1" {...a11yProps(1)} />
-                            <Tab label="Basketball Court2" {...a11yProps(2)} />
-                            <Tab label="Basketball Court3" {...a11yProps(3)} />
-                            <Tab label="Badminton Court1" {...a11yProps(4)} />
-                            <Tab label="Badminton Court2" {...a11yProps(5)} />
-                            <Tab label="Badminton Court3" {...a11yProps(6)} />
-                            <Tab label="Volleyball Court1" {...a11yProps(7)} />
-                            <Tab label="Volleyball Court2" {...a11yProps(8)} />
-                            <Tab label="Football Court" {...a11yProps(9)} />
+                            <Tab label="Basketball Court" {...a11yProps(1)} />
+                            <Tab label="Tennis Court" {...a11yProps(2)} />
+                            <Tab label="Badminton Court1" {...a11yProps(3)} />
+                            <Tab label="Badminton Court2" {...a11yProps(4)} />
+                            <Tab label="Badminton Court3" {...a11yProps(5)} />
+                            <Tab label="Badminton Court4" {...a11yProps(6)} />
+                            <Tab label="Futsal Court1" {...a11yProps(7)} />
+                            <Tab label="Futsal Court2" {...a11yProps(8)} />
+                            <Tab label="Boxing Stadium" {...a11yProps(9)} />
+                            <Tab label="Judo Court" {...a11yProps(10)} />
+                            <Tab label="Volleyball Court" {...a11yProps(11)} />
                         </Tabs>
                     </Box>
 
                     <TabPanel value={value} index={0}>
-                        <Box sx={{display: 'flex', alignItems: 'center', justifyContent: 'flex-end' }}>
-                            <Switch {...label} defaultChecked />
-                        </Box>
                         <AvailabilityList />
-                        <Container sx={{ mt: 5 }}>
-                            <Grid container spacing={2}>
-                                <Grid xs={6}>
-                                    <TableContainer component={Paper} sx={{ width: 700, height: 550 }}>
-                                        <Table sx={{ minWidth: 650 }} aria-label="simple table">
-                                            <TableHead>
-                                                <TableRow>
-                                                    <TableCell>Dessert (100g serving)</TableCell>
-                                                    <TableCell align="right">Calories</TableCell>
-                                                    <TableCell align="right">Fat&nbsp;(g)</TableCell>
-                                                    <TableCell align="right">Carbs&nbsp;(g)</TableCell>
-                                                    <TableCell align="right">Protein&nbsp;(g)</TableCell>
-                                                </TableRow>
-                                            </TableHead>
-                                            <TableBody>
-                                                {rows.map((row) => (
-                                                    <TableRow
-                                                        key={row.name}
-                                                        sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
-                                                    >
-                                                        <TableCell component="th" scope="row">
-                                                            {row.name}
-                                                        </TableCell>
-                                                        <TableCell align="right">{row.calories}</TableCell>
-                                                        <TableCell align="right">{row.fat}</TableCell>
-                                                        <TableCell align="right">{row.carbs}</TableCell>
-                                                        <TableCell align="right">{row.protein}</TableCell>
-                                                    </TableRow>
-                                                ))}
-                                            </TableBody>
-                                        </Table>
-                                    </TableContainer>
-                                </Grid>
-
-                                <Grid xs={6}>
-                                    <Box sx={{
-                                        ml: 30, display: 'flex',
-                                        justifyContent: 'center',
-                                        alignItems: 'center',
-                                        flexDirection: 'row'
-                                    }}>
-                                        <Autocomplete
-                                            disablePortal
-                                            id="combo-box-demo"
-                                            options={Date}
-                                            sx={{ width: 300 }}
-                                            renderInput={(params) => <TextField {...params} label="Date" />}
-                                        />
-                                    </Box>
-
-                                </Grid>
-
-                            </Grid>
-                        </Container>
                     </TabPanel>
-
-
-                    
                     <TabPanel value={value} index={1}>
-                        ลองส่วนbackendก่อน
+                        <CourtAvailabilityList courtId={1} />
                     </TabPanel>
                     <TabPanel value={value} index={2}>
-                        Item Three
+                        <CourtAvailabilityList courtId={2} />
                     </TabPanel>
                     <TabPanel value={value} index={3}>
-                        Item One
+                        <CourtAvailabilityList courtId={3} />
                     </TabPanel>
                     <TabPanel value={value} index={4}>
-                        Item Two
+                        <CourtAvailabilityList courtId={4} />
                     </TabPanel>
                     <TabPanel value={value} index={5}>
-                        Item Three
+                        <CourtAvailabilityList courtId={5} />
                     </TabPanel>
                     <TabPanel value={value} index={6}>
-                        Item One
+                        <CourtAvailabilityList courtId={6} />
                     </TabPanel>
                     <TabPanel value={value} index={7}>
-                        Item Two
+                        <CourtAvailabilityList courtId={7} />
                     </TabPanel>
                     <TabPanel value={value} index={8}>
-                        Item Three
+                        <CourtAvailabilityList courtId={8} />
                     </TabPanel>
                     <TabPanel value={value} index={9}>
-                        Item Three
+                        <CourtAvailabilityList courtId={9} />
+                    </TabPanel>
+                    <TabPanel value={value} index={10}>
+                        <CourtAvailabilityList courtId={10} />
+                    </TabPanel>
+                    <TabPanel value={value} index={11}>
+                        <CourtAvailabilityList courtId={11} />
                     </TabPanel>
                 </Box>
 

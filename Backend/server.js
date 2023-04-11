@@ -205,7 +205,7 @@ app.put("/userUpdate/:id", jsonParser, (req, res) => {
 // Get all reservations
 app.get("/reservations", (req, res) => {
   db.query(
-    "SELECT r.ReserveID, r.ReserveDate, r.ReserveStatus, u.UserID, c.CourtType, t.startTime, t.endTime FROM reservation r JOIN court c ON r.courtID = c.CourtID JOIN times t ON r.timesID = t.timesID JOIN user u ON r.UserID = u.UserID",
+    "SELECT r.ReserveID, r.ReserveDate, r.ReserveStatus, u.UserID, c.CourtType, t.TimeList FROM reservation r JOIN court c ON r.courtID = c.CourtID JOIN times t ON r.timesID = t.timesID JOIN user u ON r.UserID = u.UserID",
     (err, results) => {
       if (err) {
         console.error("Error getting reservations: ", err);
@@ -240,7 +240,7 @@ app.get("/reservations", (req, res) => {
 
 // Get all availabilities
 app.get("/availabilities", (req, res) => {
-  db.query("SELECT a.AvailabilityID, c.CourtType, t.startTime, t.endTime, a.dates, a.Status FROM availability a JOIN court c ON a.CourtID = c.CourtID JOIN times t ON a.timesID = t.timesID", 
+  db.query("SELECT a.AvailabilityID, c.CourtType, t.TimeList, a.dates, a.Status FROM availability a JOIN court c ON a.CourtID = c.CourtID JOIN times t ON a.timesID = t.timesID", 
   (err, result) => {
     if (err) {
       console.error("Error getting availabilities: ", err);
@@ -249,6 +249,24 @@ app.get("/availabilities", (req, res) => {
     }
     res.status(200).json(result);
   });
+});
+
+// Get all availabilities according to CourtID
+app.get("/availabilities/:courtId", (req, res) => {
+  const courtId = req.params.courtId;
+
+  db.query(
+    "SELECT a.AvailabilityID, c.CourtType, t.TimeList, a.dates, a.Status FROM availability a JOIN court c ON a.CourtID = c.CourtID JOIN times t ON a.timesID = t.timesID WHERE a.CourtID = ?",
+    [courtId],
+    (err, result) => {
+      if (err) {
+        console.error("Error getting availabilities: ", err);
+        res.status(500).json({ error: "Internal server error." });
+        return;
+      }
+      res.status(200).json(result);
+    }
+  );
 });
 
 // Update an availability status by ID
