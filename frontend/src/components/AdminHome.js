@@ -1,4 +1,4 @@
-import * as React from 'react';
+import React,{useState, useEffect} from 'react';
 import { styled, useTheme } from '@mui/material/styles';
 import Box from '@mui/material/Box';
 import MuiDrawer from '@mui/material/Drawer';
@@ -19,7 +19,7 @@ import ManageAccountsIcon from '@mui/icons-material/ManageAccounts';
 import PropTypes from 'prop-types';
 import Tabs from '@mui/material/Tabs';
 import Tab from '@mui/material/Tab';
-import { Container, Grid } from '@mui/material';
+import { Container, Grid, Button } from '@mui/material';
 import Table from '@mui/material/Table';
 import TableBody from '@mui/material/TableBody';
 import TableCell from '@mui/material/TableCell';
@@ -31,6 +31,7 @@ import TextField from '@mui/material/TextField';
 import Autocomplete from '@mui/material/Autocomplete';
 import Switch from '@mui/material/Switch';
 import MenuItem from '@mui/material/MenuItem';
+import axios from "axios";
 
 
 //ส่วนของappbar
@@ -192,6 +193,103 @@ function AdminHome() {
     const handleChange = (event, newValue) => {
         setValue(newValue);
     };
+    
+    const AvailabilityList = () => {
+        const [availabilities, setAvailabilities] = useState([]);
+        const [order, setOrder] = useState("asc");
+    
+        useEffect(() => {
+          axios
+            .get("http://localhost:5000/availabilities")
+            .then((res) => {
+              setAvailabilities(res.data);
+            })
+            .catch((err) => {
+              console.log(err);
+            });
+        }, []);
+    
+        const toggleAvailabilityStatus = (id, status) => {
+          const newStatus = status === 1 ? 0 : 1;
+          axios
+            .put(`http://localhost:5000/availabilities/${id}`, {
+              Status: newStatus,
+            })
+            .then((res) => {
+              // Update the availabilities array with the updated availability
+              const updatedAvailabilities = availabilities.map((availability) =>
+                availability.AvailabilityID === id
+                  ? { ...availability, Status: newStatus }
+                  : availability
+              );
+              setAvailabilities(updatedAvailabilities);
+            })
+            .catch((err) => {
+              console.log(err);
+            });
+        };  
+    
+        const sortByAvailabilityId = () => {
+          const sortedAvailabilities = [...availabilities].sort(
+            (a, b) =>
+              order === "asc"
+                ? a.AvailabilityID - b.AvailabilityID
+                : b.AvailabilityID - a.AvailabilityID
+          );
+          setOrder(order === "asc" ? "desc" : "asc");
+          setAvailabilities(sortedAvailabilities);
+        };
+    
+        return (
+            <>
+            <Button onClick={sortByAvailabilityId} variant="contained">
+                Sort by Availability ID ({order})
+            </Button>
+            <TableContainer component={Paper} sx={{ width: "100%", height: 550 }}>
+                <Table sx={{ minWidth: 650 }} aria-label="simple table">
+                    <TableHead>
+                    <TableRow>
+                        <TableCell>Availability ID</TableCell>
+                        <TableCell>Court Type</TableCell>
+                        <TableCell>Date</TableCell>
+                        <TableCell>Start Time</TableCell>
+                        <TableCell>End Time</TableCell>
+                        <TableCell>Status</TableCell>
+                    </TableRow>
+                    </TableHead>
+                    <TableBody>
+                    {availabilities.map((availability) => (
+                        <TableRow
+                        key={availability.AvailabilityID}
+                        sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
+                        >
+                        <TableCell component="th" scope="row">
+                            {availability.AvailabilityID}
+                        </TableCell>
+                        <TableCell>{availability.CourtType}</TableCell>
+                        <TableCell>{availability.dates}</TableCell>
+                        <TableCell>{availability.startTime}</TableCell>
+                        <TableCell>{availability.endTime}</TableCell>
+                        <TableCell>
+                            <Switch
+                            checked={availability.Status === 1}
+                            onChange={() =>
+                                toggleAvailabilityStatus(
+                                availability.AvailabilityID,
+                                availability.Status
+                                )
+                            } 
+                            />
+                            {availability.Status === '1' ? "Available" : "Unavailable"}
+                        </TableCell>
+                        </TableRow>
+                    ))}
+                    </TableBody>
+                </Table>
+            </TableContainer>
+            </>
+        );
+      };
 
     return (
         <Box sx={{ display: 'flex' }}>
@@ -268,6 +366,7 @@ function AdminHome() {
                         <Box sx={{display: 'flex', alignItems: 'center', justifyContent: 'flex-end' }}>
                             <Switch {...label} defaultChecked />
                         </Box>
+                        <AvailabilityList />
                         <Container sx={{ mt: 5 }}>
                             <Grid container spacing={2}>
                                 <Grid xs={6}>
