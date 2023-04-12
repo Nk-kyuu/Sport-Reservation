@@ -25,6 +25,7 @@ import PropTypes from 'prop-types';
 import Tab from '@mui/material/Tab';
 import Tabs from '@mui/material/Tabs';
 import { Grid, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow } from "@mui/material";
+import TextSnippetIcon from '@mui/icons-material/TextSnippet';
 
 
 
@@ -162,6 +163,10 @@ function UserDataManage() {
     const handleChange = (event, newValue) => {
         setValue(newValue);
     };
+
+    const handleReservation = () => {
+      window.location = '/AdminReservation';
+    };
   
     const [UserID, setId] = useState("");
     const [password, setPassword] = useState("");
@@ -210,9 +215,9 @@ function UserDataManage() {
 
       return (
         <Container sx={{ mt: 2 }}>
-          <Grid container spacing={2}>
+          <Grid container spacing={4}>
             <Grid xs={12}>
-              <TableContainer component={Paper} sx={{ width: "100%", height: 550 }}>
+              <TableContainer component={Paper} sx={{ width: 1300, height: 550 }}>
                 <Table sx={{ minWidth: 650 }} aria-label="simple table">
                   <TableHead>
                     <TableRow>
@@ -284,8 +289,8 @@ function UserDataManage() {
 
       return (
         <Container sx={{ mt: 5 }}>
-          <Grid container spacing={2}>
-            <Grid item xs={6}>
+          <Grid container spacing={4}>
+            <Grid item xs={100}>
             <div>
               <TextField  
                 label="Enter User ID"
@@ -295,7 +300,7 @@ function UserDataManage() {
               <Button onClick={handleSearch} sx={{ width: 100, height: 55}} color="inherit" variant="contained">Search</Button>
             </div>
               {selectedUser && (
-                <TableContainer component={Paper} sx={{ width: 1100, height: 125, mt: 3 }}>
+                <TableContainer component={Paper} sx={{ width: 1300, height: 150, mt: 3 }}>
                   <Table sx={{ minWidth: 650 }} aria-label="simple table">
                     <TableHead>
                       <TableRow>
@@ -366,7 +371,7 @@ function UserDataManage() {
 
       return (
         <Container maxWidth="xs">
-          <Typography paragraph variant="h4" sx={{ fontFamily: '-apple-system ', fontWeight: 700 ,mt:4}}>
+          <Typography paragraph variant="h4" sx={{ fontFamily: '-apple-system ', fontWeight: 500 ,mt:2}}>
             Edit User Information
           </Typography>
           <form onSubmit={handleSubmit}>
@@ -379,11 +384,11 @@ function UserDataManage() {
                 '& .MuiTextField-root': { width: '30ch' },    
               }}
             >
-              <TextField sx={{ mt: 4 }} label={'User ID'} id="UserID" value={UserID} onChange={(event) => setId(event.target.value)} />
-              <TextField sx={{ mt: 5 }} label={'First Name'} id="firstname" value={firstName} onChange={(event) => setFirstName(event.target.value)} />
-              <TextField sx={{ mt: 5 }} label={'Last Name'} id="lastname" value={lastName} onChange={(event) => setLastName(event.target.value)} />
-              <TextField sx={{ mt: 5 }} label={'Email'} id="email" value={email} onChange={(event) => setEmail(event.target.value)} />
-              <FormControl sx={{ mt: 5, minWidth: 120 }}>
+              <TextField sx={{ mt: 2 }} label={'User ID'} id="UserID" value={UserID} onChange={(event) => setId(event.target.value)} />
+              <TextField sx={{ mt: 2 }} label={'First Name'} id="firstname" value={firstName} onChange={(event) => setFirstName(event.target.value)} />
+              <TextField sx={{ mt: 2 }} label={'Last Name'} id="lastname" value={lastName} onChange={(event) => setLastName(event.target.value)} />
+              <TextField sx={{ mt: 2 }} label={'Email'} id="email" value={email} onChange={(event) => setEmail(event.target.value)} />
+              <FormControl sx={{ mt: 2, minWidth: 120 }}>
                   <InputLabel id="privilege-label">privilege</InputLabel>
                   <Select
                       labelId="privilege-label"
@@ -425,14 +430,19 @@ function UserDataManage() {
           privilegee: privilegee,
         };
 
-        axios.post("http://localhost:5000/adduser", newUser,{ timeout: 10000 }).then((res) => {
-          console.log(res.data);
-        });
+        axios
+          .post("http://localhost:5000/adduser", newUser, { timeout: 10000 })
+          .then((res) => {
+            console.log(res.data);
+          })
+          .catch((error) => {
+            console.error("Error adding user:", error);
+          });
       };
 
       return (
         <Container maxWidth="xs">
-          <Typography paragraph variant="h4" sx={{ fontFamily: '-apple-system ', fontWeight: 700, mt: 4 }}>
+          <Typography paragraph variant="h4" sx={{ fontFamily: '-apple-system ', fontWeight: 500, mt: 2 }}>
             Edit User Information
           </Typography>
           <form onSubmit={handleSubmit}>
@@ -445,12 +455,12 @@ function UserDataManage() {
                 '& .MuiTextField-root': { width: '30ch' },
               }}
             >
-              <TextField sx={{ mt: 4 }} label={'User ID'} id="userID" value={userID} onChange={(event) => setUserID(event.target.value)} />
-              <TextField sx={{ mt: 5 }} label={'Password'} type="password" id="password" value={password} onChange={(event) => setPassword(event.target.value)} />
-              <TextField sx={{ mt: 5 }} label={'First Name'} id="firstName" value={firstName} onChange={(event) => setFirstName(event.target.value)} />
-              <TextField sx={{ mt: 5 }} label={'Last Name'} id="lastName" value={lastName} onChange={(event) => setLastName(event.target.value)} />
-              <TextField sx={{ mt: 5 }} label={'Email'} id="email" value={email} onChange={(event) => setEmail(event.target.value)} />
-              <FormControl sx={{ mt: 5, minWidth: 120 }}>
+              <TextField sx={{ mt: 2 }} label={'User ID'} id="userID" value={userID} onChange={(event) => setUserID(event.target.value)} />
+              <TextField sx={{ mt: 2 }} label={'Password'} type="password" id="password" value={password} onChange={(event) => setPassword(event.target.value)} />
+              <TextField sx={{ mt: 2 }} label={'First Name'} id="firstName" value={firstName} onChange={(event) => setFirstName(event.target.value)} />
+              <TextField sx={{ mt: 2 }} label={'Last Name'} id="lastName" value={lastName} onChange={(event) => setLastName(event.target.value)} />
+              <TextField sx={{ mt: 2 }} label={'Email'} id="email" value={email} onChange={(event) => setEmail(event.target.value)} />
+              <FormControl sx={{ mt: 2, minWidth: 120 }}>
                 <InputLabel id="privilege-label">Privilege</InputLabel>
                 <Select
                   labelId="privilege-label"
@@ -463,7 +473,7 @@ function UserDataManage() {
                   <MenuItem value="User">User</MenuItem>
                 </Select>
               </FormControl>
-              <Button type="submit" sx={{ mt: 5, width: 100, height: 45 }} variant="contained" color="inherit">
+              <Button type="submit" sx={{ mt: 3, width: 100, height: 45 }} variant="contained" color="inherit">
                 Confirm
               </Button>
             </Box>
@@ -517,6 +527,12 @@ function UserDataManage() {
               </ListItemIcon>
               User Data Manage
             </ListItem>
+            <MenuItem onClick={handleReservation}>
+                        <ListItemIcon>
+                            <TextSnippetIcon sx={{mr:4}}/>
+                        </ListItemIcon>
+                        Reservation
+                    </MenuItem>
             <ListItem onClick={handlelogout}>
               <ListItemIcon>
                 <Logout />

@@ -18,7 +18,7 @@ import ManageAccountsIcon from '@mui/icons-material/ManageAccounts';
 import PropTypes from 'prop-types';
 import Tabs from '@mui/material/Tabs';
 import Tab from '@mui/material/Tab';
-import { Button } from '@mui/material';
+import { Button, Grid, Autocomplete, TextField, FormControl, InputLabel, Select} from '@mui/material';
 import Table from '@mui/material/Table';
 import TableBody from '@mui/material/TableBody';
 import TableCell from '@mui/material/TableCell';
@@ -30,7 +30,7 @@ import Switch from '@mui/material/Switch';
 import MenuItem from '@mui/material/MenuItem';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import axios from "axios";
-
+import TextSnippetIcon from '@mui/icons-material/TextSnippet';
 
 //ส่วนของappbar
 const drawerWidth = 240;
@@ -136,17 +136,6 @@ function a11yProps(index) {
 }
 //
 
-//ส่วนtable
-const Date = [
-    { label: 'วันที่ 1' },
-    { label: 'วันที่ 2' },
-    { label: 'วันที่ 3' },
-    { label: 'วันที่ 4' },
-    { label: 'วันที่ 5' },
-    { label: 'วันที่ 6' },
-    { label: 'วันที่ 7' }
-];
-
 //switch เปิดปิด  
 const label = { inputProps: { 'aria-label': 'Switch demo' } };
 
@@ -179,6 +168,10 @@ function AdminHome() {
     const handleChange = (event, newValue) => {
         setValue(newValue);
     };
+
+    const handleReservation = () => {
+        window.location = '/AdminReservation';
+    }
     
     const AvailabilityList = () => {
         const [availabilities, setAvailabilities] = useState([]);
@@ -249,11 +242,37 @@ function AdminHome() {
           setAvailabilities(sortedAvailabilities);
         };
       
+        const [uniqueDates, setUniqueDates] = useState([]);
+        const [selectedDate, setSelectedDate] = useState('');
+
+        useEffect(() => {
+            const dates = availabilities.map((availability) => availability.dates);
+            const unique = [...new Set(dates)];
+            setUniqueDates(unique);
+        }, [availabilities]);
+
       return (
         <>
           <Button onClick={sortByAvailabilityId} variant="contained">
             Sort by Availability ID ({order})
           </Button>
+          &nbsp;&nbsp;&nbsp;&nbsp;
+          <FormControl sx={{ minWidth: 120 }}>
+            <InputLabel id="date-select-label">Select Date</InputLabel>
+            <Select
+                labelId="date-select-label"
+                id="date-select"
+                value={selectedDate}
+                label="Select Date"
+                onChange={(event) => setSelectedDate(event.target.value)}
+            >
+                {uniqueDates.map((date, index) => (
+                <MenuItem key={index} value={date}>
+                    {date}
+                </MenuItem>
+                ))}
+            </Select>
+          </FormControl>
           &nbsp;&nbsp;&nbsp;&nbsp;
           <FormControlLabel
             control={
@@ -276,7 +295,8 @@ function AdminHome() {
                 </TableRow>
               </TableHead>
               <TableBody>
-                {availabilities.map((availability) => (
+              {availabilities.filter((availability) => selectedDate === '' || availability.dates === selectedDate)
+                    .map((availability) => (
                   <TableRow
                     key={availability.AvailabilityID}
                     sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
@@ -376,12 +396,38 @@ function AdminHome() {
             setOrder(order === "asc" ? "desc" : "asc");
             setAvailabilities(sortedAvailabilities);
           };
+
+          const [uniqueDates, setUniqueDates] = useState([]);
+            const [selectedDate, setSelectedDate] = useState('');
+
+            useEffect(() => {
+                const dates = availabilities.map((availability) => availability.dates);
+                const unique = [...new Set(dates)];
+                setUniqueDates(unique);
+            }, [availabilities]);
         
         return (
           <>
             <Button onClick={sortByAvailabilityId} variant="contained">
               Sort by Availability ID ({order})
             </Button>
+            &nbsp;&nbsp;&nbsp;&nbsp;
+            <FormControl sx={{ minWidth: 120 }}>
+                <InputLabel id="date-select-label">Select Date</InputLabel>
+                <Select
+                    labelId="date-select-label"
+                    id="date-select"
+                    value={selectedDate}
+                    label="Select Date"
+                    onChange={(event) => setSelectedDate(event.target.value)}
+                >
+                    {uniqueDates.map((date, index) => (
+                    <MenuItem key={index} value={date}>
+                        {date}
+                    </MenuItem>
+                    ))}
+                </Select>
+            </FormControl>
             &nbsp;&nbsp;&nbsp;&nbsp;
             <FormControlLabel
               control={
@@ -404,7 +450,8 @@ function AdminHome() {
                   </TableRow>
                 </TableHead>
                 <TableBody>
-                  {availabilities.map((availability) => (
+                {availabilities.filter((availability) => selectedDate === '' || availability.dates === selectedDate)
+                    .map((availability) => (
                     <TableRow
                       key={availability.AvailabilityID}
                       sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
@@ -479,6 +526,12 @@ function AdminHome() {
                             <ManageAccountsIcon sx={{mr:4}}/>
                         </ListItemIcon>
                         User Data Manage
+                    </MenuItem>
+                    <MenuItem onClick={handleReservation}>
+                        <ListItemIcon>
+                            <TextSnippetIcon sx={{mr:4}}/>
+                        </ListItemIcon>
+                        Reservation
                     </MenuItem>
                     <MenuItem onClick={handlelogout}>
                         <ListItemIcon>

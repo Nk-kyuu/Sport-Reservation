@@ -1,4 +1,6 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
+import Form from 'react-bootstrap/Form';
+import Axios from "axios";
 import Avatar from '@mui/material/Avatar';
 import Button from '@mui/material/Button';
 import CssBaseline from '@mui/material/CssBaseline';
@@ -9,6 +11,7 @@ import Typography from '@mui/material/Typography';
 import Container from '@mui/material/Container';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 
+//สร้างthemeควบคุมstyleแบบglobal
 const theme = createTheme();
 
 function Login() {
@@ -42,6 +45,13 @@ function Login() {
         console.error('Error:', error);
       })
   };
+
+  const HandleLogin = () => {
+        window.location = '/Home';
+    }
+    
+
+  
 
 return (
   <div className="App container">
@@ -89,6 +99,7 @@ return (
               fullWidth
               variant="contained"
               sx={{ mt: 2 }}
+              onClick={HandleLogin}
             >
               LOGIN
             </Button>
