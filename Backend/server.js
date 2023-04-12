@@ -123,7 +123,7 @@ app.post("/reserve", jsonParser, (req, res, next) =>{
         return;
       }
 
-      const timesID = timeResult.insertId;
+      const timesID = timeResult[0].timesID;
 
       const availabilityQuery = 'SELECT AvailabilityID FROM availabilty WHERE CourtID =?, dates =?, timesID=?';
       const availabilityValues = [CourtID,Date,timesID];
@@ -325,6 +325,65 @@ app.put("/reservationsStatus/:id", (req, res) => {
       res.status(200).json({ message: "Reservation status updated successfully." });
     }
   );
+});
+
+// Update reservation status
+app.put("/UpdateReservations/:id", (req, res) => {
+  const reserveId = req.params.id;
+
+  db.beginTransaction((error) => {
+    if (error) {
+      console.error("Error beginning transaction:", error);
+      return res.status(500).json({ error: "Internal server error" });
+    }
+
+    const updateReservationQuery = "UPDATE reservation SET ReserveStatus = 0 WHERE ReserveID = ?";
+    db.query(updateReservationQuery, [reserveId], (error, result) => {
+      if (error) {
+        db.rollback(() => {
+          console.error("Error updating reservation status:", error);
+          res.status(500).json({ error: "Internal server error" });
+        });
+        return;
+      }
+
+      const availabilityIDQuery = "SELECT AvailabilityID FROM reservation WHERE ReserveID = ?";
+      db.query(availabilityIDQuery, [reserveId], (error, availabilityResult) => {
+        if (error) {
+          db.rollback(() => {
+            console.error("Error retrieving availability ID:", error);
+            res.status(500).json({ error: "Internal server error" });
+          });
+          return;
+        }
+
+        const availabilityID = availabilityResult[0].AvailabilityID;
+
+        const updateAvailabilityQuery = "UPDATE availability SET Status = 1 WHERE AvailabilityID = ?";
+        db.query(updateAvailabilityQuery, [availabilityID], (error, result) => {
+          if (error) {
+            db.rollback(() => {
+              console.error("Error updating availability status:", error);
+              res.status(500).json({ error: "Internal server error" });
+            });
+            return;
+          }
+
+          db.commit((error) => {
+            if (error) {
+              db.rollback(() => {
+                console.error("Error committing transaction:", error);
+                res.status(500).json({ error: "Internal server error" });
+              });
+              return;
+            }
+
+            res.status(200).json({ message: "Reservation and availability status updated successfully" });
+          });
+        });
+      });
+    });
+  });
 });
 
 

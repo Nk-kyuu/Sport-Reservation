@@ -34,6 +34,8 @@ import ArrowBackIosIcon from '@mui/icons-material/ArrowBackIos';
 import { Card, CardContent, CssBaseline, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, useMediaQuery } from '@mui/material';
 import { useTheme } from '@emotion/react';
 
+import axios from 'axios';
+
 
 function createData(CourtID, Date, Time, CourtType,Floor, Status) {
     return { CourtID, Date, Time, CourtType,Floor, Status };
@@ -102,6 +104,7 @@ function MyReservation() {
     }
 
     const handleReserve = (event) => {
+        
         event.preventDefault();
         fetch("http://localhost:5000/reserve", {
             method: "post",
@@ -125,41 +128,47 @@ function MyReservation() {
 
     useEffect(() => {
         const token = localStorage.getItem("token");
-        fetch("http://localhost:5000/authen", {
-            method: "post",
+      
+        /*axios
+          .post("http://localhost:5000/authen", null, {
             headers: {
-                "Content-Type": "application/json",
-                Authorization: "Bearer " + token,
+              "Content-Type": "application/json",
+              Authorization: "Bearer " + token,
             },
-        })
-            .then((response) => response.json())
-            .then((data) => {
-                //console.error('success:', data);
-                if (data.status === "ok") {
-                    //alert('authen successfully')
-                } else {
-                    alert("please login");
-                    localStorage.removeItem("token");
-                    window.location = "/";
-                }
-            })
-            .catch((error) => {
-                console.error("Error:", error);
-            });
-        const getUserID = localStorage.getItem("UserID")
+          })
+          .then((response) => {
+            const data = response.data;
+            if (data.status === "ok") {
+              // Authenticated successfully
+            } else {
+              alert("please login");
+              localStorage.removeItem("token");
+              window.location = "/";
+            }
+          })
+          .catch((error) => {
+            console.error("Error:", error);
+          });*/
+      
+        const getUserID = localStorage.getItem("UserID");
         const jsonData = {
-            UserID: getUserID,
-          };
-            fetch("http://localhost:5000/getreservation", {
-                method: "get",
-                headers: {
-                    "Content-Type": "application/json",
-                },body: JSON.stringify(jsonData),
-            })
-      .then((response) => response.json())
-      .then((data) => setreservationList(data))
-      .catch((error) => console.log(error));
-    }, []);
+          UserID: getUserID,
+        };
+      
+        axios
+          .get("http://localhost:5000/reservations", {
+            headers: {
+              "Content-Type": "application/json",
+            },
+            params: jsonData,
+          })
+          .then((response) => {
+            const data = response.data;
+            setreservationList(data);
+          })
+          .catch((error) => console.log(error));
+      }, []);
+      
 
     // const AvailabilityList = () => {
     //     const [availabilities, setAvailabilities] = useState([]);
@@ -176,8 +185,19 @@ function MyReservation() {
     //         });
     //     }, []);
       
+    const [reservations, setReservations] = useState([]);
+    const handleCancel = (reserveId) => {
+        axios
+        .put(`http://localhost:5000/UpdateReservations/${reserveId}`)
+        .then((response) => {
+            console.log(response.data);
+            // Handle the response and update the UI as needed
+        })
+        .catch((error) => {
+            console.error("Error:", error);
+        });
 
-
+      };
 
     return (
         <Box sx={{ flexGrow: 1 }}>
@@ -273,10 +293,10 @@ function MyReservation() {
                                     <TableCell align="center">{reservation.TimeList}</TableCell>
                                     <TableCell align="center">{reservation.CourtType}</TableCell>
                                     <TableCell align="left">{reservation.Floor}</TableCell>
-                                    <TableCell align="left">{reservation.Status}</TableCell>
+                                    <TableCell align="left">{reservation.ReserveStatus}</TableCell>
                                     <IconButton aria-label="delete" size="small">
-                                        <DeleteIcon fontSize="small" onClick={handleDelete}/>
-                                        </IconButton>
+                                        <DeleteIcon fontSize="small" onClick={() => handleCancel(reservation.ReserveID)} />
+                                    </IconButton>
                                 </TableRow>
                             ))}
                         </TableBody>
