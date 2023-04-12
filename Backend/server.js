@@ -92,6 +92,11 @@ app.get('/dashboard', verifyToken, (req, res) => {
   res.json({ UserID });
 });
 
+//check reservation privilege
+app.post('/checkrev', jsonParser, (req,res,next)=>{
+  const UserID = req.body.UserID;
+  
+})
 
 //reserve
 app.post("/reserve", jsonParser, (req, res, next) =>{
@@ -125,7 +130,7 @@ app.post("/reserve", jsonParser, (req, res, next) =>{
 
       const timesID = timeResult[0].timesID;
 
-      const availabilityQuery = 'SELECT AvailabilityID FROM availabilty WHERE CourtID =?, dates =?, timesID=?';
+      const availabilityQuery = 'SELECT AvailabilityID FROM availability WHERE CourtID =?AND dates =?AND timesID=?';
       const availabilityValues = [CourtID,Date,timesID];
       db.query(availabilityQuery, availabilityValues, (error, availabilityResult) => {
         if (error) {
@@ -136,10 +141,11 @@ app.post("/reserve", jsonParser, (req, res, next) =>{
           return;
         }
 
-        const availabilityID = availabilityResult.insertId;
+        const AvailabilityID = availabilityResult[0].AvailabilityID;
+        //console.log(AvailabilityID);
 
-        const reservationQuery = 'INSERT INTO reservation( ReserveDate ,ReserveStatus , UserID, AvailableID) VALUES (?, 1, ?, ?)';
-        const reservationValues = [Date,UserID, availabilityID];
+        const reservationQuery = 'INSERT INTO reservation( ReserveDate ,ReserveStatus , UserID, AvailabilityID) VALUES (?, 1, ?, ?)';
+        const reservationValues = [Date,UserID, AvailabilityID];
         db.query(reservationQuery, reservationValues, (error, reservationResult) => {
           if (error) {
             db.rollback(() => {
@@ -206,31 +212,34 @@ app.get("/users/:id", (req, res) => {
 });
 
 // Add a new user
-app.post("/adduser", jsonParser, (req, res) => {
-  const { UserID, Password, first_name, last_name, email, privilegee } = req.body;
+app.post("/adduser",(req, res)=>{
+  const UserID = req.body.UserID;
+  const Password = req.body.Password;
+  const first_name = req.body.first_name;
+  const last_name = req.body.last_name;
+  const email = req.body.email;
+  const privilegee = req.body.privilegee;
   const hash = bcrypt.hashSync(Password, 10);
-  db.query(
-    "INSERT INTO user (UserID, Password, first_name, last_name, email, privilegee) VALUES (?, ?, ?, ?, ?, ?)",
-    [UserID, hash, first_name, last_name, email, privilegee],
-    (err, result) => {
-      if (err) {
-        console.error("Error adding user: ", err);
-        res.status(500).json({ error: "Internal server error." });
-        return;
-      }
-      res.status(201).json({ message: "User added successfully." });
-    }
-  );
-});
 
-//update user by id
-app.put("/userUpdate/:UserID", jsonParser, (req, res) => {
-  const { UserID } = req.params;
+  db.query("INSERT INTO user (UserID, Password, first_name, last_name, email, privilegee) VALUES(?, ?, ?, ?, ?)",
+  [UserID, hash, first_name, last_name, email],
+  (err, result)=>{
+      if(err){
+          console.log("error cant add new user : ", err)
+      }else{
+          console.log("Value inserted")
+      }
+  })
+})
+
+// Update an existing user by ID
+app.put("/userUpdate/:id", jsonParser, (req, res) => {
+  const { id } = req.params;
   const { Password, first_name, last_name, email, privilegee } = req.body;
   const hash = bcrypt.hashSync(Password, 10);
   db.query(
     "UPDATE user SET Password = ?, first_name = ?, last_name = ?, email = ?, privilegee = ? WHERE UserID = ?",
-    [hash, first_name, last_name, email, privilegee, UserID],
+    [hash, first_name, last_name, email, id, privilegee],
     (err, result) => {
       if (err) {
         console.error("Error updating user: ", err);
@@ -266,7 +275,7 @@ app.put("/userUpdate/:UserID", jsonParser, (req, res) => {
 // Get all reservations
 app.get("/reservations", (req, res) => {
   db.query(
-    "SELECT r.ReserveID, r.ReserveDate, r.ReserveStatus, u.UserID, u.first_name, u.last_name, a.AvailabilityID, a.CourtID, a.dates, t.timesID, t.TimeList, c.CourtType, c.Floor, c.CourtStatus FROM reservation r INNER JOIN `user` u ON r.UserID = u.UserID INNER JOIN availability a ON r.AvailabilityID = a.AvailabilityID INNER JOIN times t ON a.timesID = t.timesID INNER JOIN court c ON a.CourtID = c.CourtID;",
+    "SELECT r.ReserveID, r.ReserveDate, r.ReserveStatus, u.UserID, c.CourtType, t.TimeList FROM reservation r JOIN court c ON r.courtID = c.CourtID JOIN times t ON r.timesID = t.timesID JOIN user u ON r.UserID = u.UserID",
     (err, results) => {
       if (err) {
         console.error("Error getting reservations: ", err);
@@ -278,115 +287,26 @@ app.get("/reservations", (req, res) => {
   );
 });
 
-app.get("/reservationsByID", (req, res) => {
-  const courtId = req.query.courtID;
+// Get a reservation by ID
+/*app.get("/reservations/:id", (req, res) => {
+  const { id } = req.params;
   db.query(
-    "SELECT r.ReserveID, r.ReserveDate, r.ReserveStatus, u.UserID, u.first_name, u.last_name, a.AvailabilityID, a.CourtID, a.dates, t.timesID, t.TimeList, c.CourtType, c.Floor, c.CourtStatus FROM reservation r INNER JOIN `user` u ON r.UserID = u.UserID INNER JOIN availability a ON r.AvailabilityID = a.AvailabilityID INNER JOIN times t ON a.timesID = t.timesID INNER JOIN court c ON a.CourtID = c.CourtID WHERE c.courtID = ?",
-    [courtId],
+    "SELECT * FROM reservation WHERE ReserveID = ?",
+    [id],
     (err, results) => {
       if (err) {
-        console.error("Error getting reservations: ", err);
+        console.error("Error getting reservation: ", err);
         res.status(500).json({ error: "Internal server error." });
         return;
       }
-      console.log("Results:", results); // Add this line for debugging
-      res.status(200).json(results);
-    }
-  );
-});
-
-// Delete a reservation by ReserveID
-app.delete("/DeleteReservations/:id", (req, res) => {
-  const reserveId = req.params.id;
-
-  db.query("DELETE FROM reservation WHERE ReserveID = ?", [reserveId], (err, result) => {
-    if (err) {
-      console.error("Error deleting reservation: ", err);
-      res.status(500).json({ error: "Internal server error." });
-      return;
-    }
-    res.status(200).json({ message: "Reservation deleted successfully." });
-  });
-});
-
-// Update reservation status based on availability status
-app.put("/reservationsStatus/:id", (req, res) => {
-  const availabilityId = req.params.id;
-  db.query(
-    "UPDATE reservation SET ReserveStatus = 1 WHERE AvailabilityID = ?",
-    [availabilityId],
-    (err, results) => {
-      if (err) {
-        console.error("Error updating reservation status: ", err);
-        res.status(500).json({ error: "Internal server error." });
+      if (results.length === 0) {
+        res.status(404).json({ error: "Reservation not found." });
         return;
       }
-      console.log("Reservation status updated for Availability ID: ", availabilityId);
-      res.status(200).json({ message: "Reservation status updated successfully." });
+      res.status(200).json(results[0]);
     }
   );
-});
-
-// Update reservation status
-app.put("/UpdateReservations/:id", (req, res) => {
-  const reserveId = req.params.id;
-
-  db.beginTransaction((error) => {
-    if (error) {
-      console.error("Error beginning transaction:", error);
-      return res.status(500).json({ error: "Internal server error" });
-    }
-
-    const updateReservationQuery = "UPDATE reservation SET ReserveStatus = 0 WHERE ReserveID = ?";
-    db.query(updateReservationQuery, [reserveId], (error, result) => {
-      if (error) {
-        db.rollback(() => {
-          console.error("Error updating reservation status:", error);
-          res.status(500).json({ error: "Internal server error" });
-        });
-        return;
-      }
-
-      const availabilityIDQuery = "SELECT AvailabilityID FROM reservation WHERE ReserveID = ?";
-      db.query(availabilityIDQuery, [reserveId], (error, availabilityResult) => {
-        if (error) {
-          db.rollback(() => {
-            console.error("Error retrieving availability ID:", error);
-            res.status(500).json({ error: "Internal server error" });
-          });
-          return;
-        }
-
-        const availabilityID = availabilityResult[0].AvailabilityID;
-
-        const updateAvailabilityQuery = "UPDATE availability SET Status = 1 WHERE AvailabilityID = ?";
-        db.query(updateAvailabilityQuery, [availabilityID], (error, result) => {
-          if (error) {
-            db.rollback(() => {
-              console.error("Error updating availability status:", error);
-              res.status(500).json({ error: "Internal server error" });
-            });
-            return;
-          }
-
-          db.commit((error) => {
-            if (error) {
-              db.rollback(() => {
-                console.error("Error committing transaction:", error);
-                res.status(500).json({ error: "Internal server error" });
-              });
-              return;
-            }
-
-            res.status(200).json({ message: "Reservation and availability status updated successfully" });
-          });
-        });
-      });
-    });
-  });
-});
-
-
+});*/
 
 // Get all availabilities
 app.get("/availabilities", (req, res) => {
@@ -400,22 +320,6 @@ app.get("/availabilities", (req, res) => {
     res.status(200).json(result);
   });
 });
-
-// Get all availabilities dates
-app.get("/distinct-dates", (req, res) => {
-  db.query(
-    "SELECT DISTINCT dates FROM availability",
-    (err, result) => {
-      if (err) {
-        console.error("Error getting distinct dates: ", err);
-        res.status(500).json({ error: "Internal server error." });
-        return;
-      }
-      res.status(200).json(result);
-    }
-  );
-});
-
 
 // Get all availabilities according to CourtID
 app.get("/availabilities/:courtId", (req, res) => {
@@ -543,6 +447,7 @@ app.get('/getreservation', (req,res) =>{
     }
   })
 })
+
 
 
 //server port

@@ -110,7 +110,9 @@ function Home() {
   }, []);
 
   const [anchorEl, setAnchorEl] = React.useState(null);
-  const [selectedDate, setSelectedDate] = useState(localStorage.getItem('selectedDate') || null);
+  const [selectedDate, setSelectedDate] = useState(
+    localStorage.getItem("selectedDate") || null
+  );
   //console.log(dates);
 
   const handleMenu = (event) => {
@@ -119,56 +121,58 @@ function Home() {
 
   const handleClose = () => {
     setAnchorEl(null);
-  };  
-  
-  const handleLogout = (event) => {
-      event.preventDefault();
-      localStorage.removeItem("token");
-      window.location = "/";
-    };
+  };
 
-  const handlemyrev = () =>{
-    window.location = '/MyReservation';
-  }
+  const handleLogout = (event) => {
+    event.preventDefault();
+    localStorage.removeItem("token");
+    window.location = "/";
+  };
+
+  const handlemyrev = () => {
+    window.location = "/MyReservation";
+  };
   const [value, setValue] = React.useState(0);
 
   const handleChange = (event, newValue) => {
     setValue(newValue);
   };
 
+  const handlenext = () =>{
+    window.location = "/Court"
+  }
 
   const handleSelectDate = (date) => {
-    window.location = "/Court";
+    //window.location = "/Court";
     setSelectedDate(date);
-    const formatDate = dayjs(selectedDate).format('YYYY-MM-DD');
-    localStorage.setItem('Date', formatDate);
-    const getDate = localStorage.getItem('Date')
-    console.log(getDate)
-      const jsonData = {
-        Date: getDate,  
-      };
-      fetch("http://localhost:5000/checkdate", {
-        method: "post",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(jsonData),
-        
+    const formatDate = dayjs(selectedDate).format("YYYY-MM-DD");
+    localStorage.setItem("Date", formatDate);
+    const getDate = localStorage.getItem("Date");
+    console.log(getDate);
+    const jsonData = {
+      Date: getDate,
+    };
+    fetch("http://localhost:5000/checkdate", {
+      method: "post",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(jsonData),
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        //console.error('success:', data);
+        if (data.status == "ok") {
+          //alert("update successfully");
+        } else {
+          alert("update failed");
+        }
       })
-        .then((response) => response.json())
-        .then((data) => {
-          //console.error('success:', data);
-          if (data.status == "ok") {
-            //alert("update successfully");
-          } else {
-            alert("update failed");
-          }
-        })
-        .catch((error) => {
-          console.error("Error:", error);
-        });
+      .catch((error) => {
+        console.error("Error:", error);
+      });
   };
-  
+
   return (
     <Box>
       <AppBar position="static">
@@ -283,18 +287,19 @@ function Home() {
         <Grid xs={6}>
           <Container sx={{ mt: 25 }}>
             <LocalizationProvider dateAdapter={AdapterDayjs}>
-              <DemoContainer components={["DateCalendar"]} >
+              <DemoContainer components={["DateCalendar"]}>
                 <DateCalendar
-                  defaultValue={dayjs("2022-04-17")}
-                 date={selectedDate}
-      onChange={handleSelectDate}
+                  defaultValue={dayjs("2023-03-12")}
+                  date={selectedDate}
+                  onChange={handleSelectDate}
                 />
               </DemoContainer>
             </LocalizationProvider>
           </Container>
         </Grid>
       </Grid>
+      <button onClick={handlenext}>next</button>
     </Box>
   );
-            }
+}
 export default Home;
