@@ -39,18 +39,19 @@ function createData(CourtID, Date, Time, CourtType,Floor, Status) {
     return { CourtID, Date, Time, CourtType,Floor, Status };
 }
 
-const rows = [
-    createData('Frozen yoghurt', 159, 6.0, 24, '',4.0),
-    createData('Ice cream sandwich', 237, 9.0, 37, '',4.3),
-    createData('Eclair', 262, 16.0, 24, '',6.0),
-    createData('Cupcake', 305, 3.7, 67, '',4.3),
-    createData('Gingerbread', 356, 16.0, 49,'', 3.9),
-];
+// const rows = [
+//     createData('Frozen yoghurt', 159, 6.0, 24, '',4.0),
+//     createData('Ice cream sandwich', 237, 9.0, 37, '',4.3),
+//     createData('Eclair', 262, 16.0, 24, '',6.0),
+//     createData('Cupcake', 305, 3.7, 67, '',4.3),
+//     createData('Gingerbread', 356, 16.0, 49,'', 3.9),
+// ];
 
 function MyReservation() {
 
     const [open, setOpen] = React.useState(false);
     const theme = useTheme();
+    const [reservationList, setreservationList] = useState([]);
 
     const handleClickOpen = () => {
         setOpen(true);
@@ -145,7 +146,36 @@ function MyReservation() {
             .catch((error) => {
                 console.error("Error:", error);
             });
+        const getUserID = localStorage.getItem("UserID")
+        const jsonData = {
+            UserID: getUserID,
+          };
+            fetch("http://localhost:5000/getreservation", {
+                method: "get",
+                headers: {
+                    "Content-Type": "application/json",
+                },body: JSON.stringify(jsonData),
+            })
+      .then((response) => response.json())
+      .then((data) => setreservationList(data))
+      .catch((error) => console.log(error));
     }, []);
+
+    // const AvailabilityList = () => {
+    //     const [availabilities, setAvailabilities] = useState([]);
+    //     const [order, setOrder] = useState("asc");
+    //     const [toggleAllChecked, setToggleAllChecked] = useState(false);
+      
+    //     useEffect(() => {
+    //         .get("http://localhost:5000/availabilities")
+    //         .then((res) => {
+    //           setAvailabilities(res.data);
+    //         })
+    //         .catch((err) => {
+    //           console.log(err);
+    //         });
+    //     }, []);
+      
 
 
 
@@ -231,19 +261,19 @@ function MyReservation() {
                             </TableRow>
                         </TableHead>
                         <TableBody>
-                            {rows.map((row) => (
+                            {reservationList.map((reservation) => (
                                 <TableRow
-                                    key={row.CourtID}
+                                    key={reservation.CourtID}
                                     sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
                                 >
                                     <TableCell component="th" scope="row">
-                                        {row.CourtID}
+                                        {reservation.CourtID}
                                     </TableCell>
-                                    <TableCell align="center">{row.Date}</TableCell>
-                                    <TableCell align="center">{row.Time}</TableCell>
-                                    <TableCell align="center">{row.CourtType}</TableCell>
-                                    <TableCell align="left">{row.Floor}</TableCell>
-                                    <TableCell align="left">{row.Status}</TableCell>
+                                    <TableCell align="center">{reservation.ReserveDate}</TableCell>
+                                    <TableCell align="center">{reservation.TimeList}</TableCell>
+                                    <TableCell align="center">{reservation.CourtType}</TableCell>
+                                    <TableCell align="left">{reservation.Floor}</TableCell>
+                                    <TableCell align="left">{reservation.Status}</TableCell>
                                     <IconButton aria-label="delete" size="small">
                                         <DeleteIcon fontSize="small" onClick={handleDelete}/>
                                         </IconButton>

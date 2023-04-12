@@ -432,17 +432,22 @@ app.get('/court', (req,res)=>{
 // } )
 
 //show reservation
-app.get('/reservation', (req,res) =>{
-  const Date = req.body.Date;
-  db.query('SELECT CourtID,timesID, CourtType, Floor FROM availability,court WHERE availability.dates = ?',[Date], (err, result) => {
+app.get('/getreservation', (req,res) =>{
+  const UserID = req.body.UserID;
+  console.log('reservation call')
+  db.query('SELECT r.ReserveID, r.ReserveDate, r.ReserveStatus, u.UserID, u.Firstname, u.Lastname, a.AvailabilityID, a.CourtID, a.dates, t.timesID, t.TimeList, c.CourtType, c.Floor, c.CourtStatus FROM reservation r INNER JOIN user u ON r.UserID = u.UserID INNER JOIN availability a ON r.AvailabilityID = a.AvailabilityID INNER JOIN times t ON a.timesID = t.timesID INNER JOIN court c ON a.CourtID = c.CourtID  ', (err, result) => {
     if (err) {
       console.log(err);
+
    }
    else {
      res.send(result);
-   }
-});
+     console.log(result)
+    }
+  })
 })
+
+
 
 //server port
 app.listen(5000, () => {

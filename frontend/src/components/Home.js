@@ -87,6 +87,26 @@ function Home() {
       .catch((error) => {
         console.error("Error:", error);
       });
+
+    //   fetch("http://localhost:5000/checkrev", {
+    //     method: "post",
+    //   headers: {
+    //     "Content-Type": "application/json",
+    //   },
+    //   body: JSON.stringify(jsonData),
+    // })
+    //   .then((response) => response.json())
+    //   .then((data) => {
+    //     //console.error('success:', data);
+    //     if (data.status == "ok") {
+    //       alert("update successfully");
+    //     } else {
+    //       alert("update failed");
+    //     }
+    //   })
+    //   .catch((error) => {
+    //     console.error("Error:", error);
+    //   });
   }, []);
 
   const [anchorEl, setAnchorEl] = React.useState(null);
@@ -107,6 +127,9 @@ function Home() {
       window.location = "/";
     };
 
+  const handlemyrev = () =>{
+    window.location = '/MyReservation';
+  }
   const [value, setValue] = React.useState(0);
 
   const handleChange = (event, newValue) => {
@@ -115,7 +138,7 @@ function Home() {
 
 
   const handleSelectDate = (date) => {
-    //window.location = "/Court";
+    window.location = "/Court";
     setSelectedDate(date);
     const formatDate = dayjs(selectedDate).format('YYYY-MM-DD');
     localStorage.setItem('Date', formatDate);
@@ -195,7 +218,7 @@ function Home() {
               open={Boolean(anchorEl)}
               onClose={handleClose}
             >
-              <MenuItem onClick={handleClose}>
+              <MenuItem onClick={handlemyrev}>
                 <ListItemIcon>
                   <ArticleOutlinedIcon />
                 </ListItemIcon>
